@@ -1,0 +1,22 @@
+{
+    "name": "twitterclone",
+    "version": "1.0.0",
+    "description": "",
+    "main": "app.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "nodemon app.js"
+    },
+    "author": "Satoshi Teramoto",
+    "license": "ISC",
+    "dependencies": {
+        "bcrypt": "^5.1.0",
+        "body-parser": "^1.20.2",
+        "express": "^4.18.2",
+        "express-session": "^1.17.3",
+        "mangodb": "^1.0.0",
+        "mongoose": "^7.0.3",
+        "nodemon": "^2.0.22",
+        "pug": "^3.0.2"
+    }
+}

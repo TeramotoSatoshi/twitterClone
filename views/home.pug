@@ -1,0 +1,10 @@
+//- レイアウト読み込み//
+extends layouts/main-layout.pug
+
+block content
+    +createPostForm(userLoggedIn)
+    .postsContainer
+
+
+block scripts
+    script(src="/js/home.js")
