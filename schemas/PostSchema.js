@@ -8,6 +8,8 @@ const PostSchema = new Schema(
         postedBy: { type: Schema.Types.ObjectId, ref: "User" }, // 外部キー, 参照モデル
         pinned: Boolean,
         likes: [ { type: Schema.Types.ObjectId, ref: "User" }],
+        retweetUsers: [ { type: Schema.Types.ObjectId, ref: "User" }],
+        retweetData: { type: Schema.Types.ObjectId, ref: "Post" },
     },
     { timestamps: true }
 );
@@ -15,5 +17,5 @@ const PostSchema = new Schema(
 // エクスポート
 // Mongoose がモデルをコンパイル
 // 第１引数：DBコレクション名（スキーマ）
-var Post = mongoose.model("Post", PostSchema);
+let Post = mongoose.model("Post", PostSchema);
 module.exports = Post;

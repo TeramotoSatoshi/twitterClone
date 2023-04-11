@@ -1,3 +1,4 @@
+//- 投稿フォーム作成createPostForm関数
 mixin createPostForm(userLoggedIn)
     .postFormContainer
         .userImageContainer
@@ -6,3 +7,21 @@ mixin createPostForm(userLoggedIn)
             textarea#postTextarea(placeholder="what's happening?")
             .buttonsContainer
                 button#submitPostButton(disabled="") Post
+
+//- モーダル作成関数
+mixin createReplyModal(userLoggedIn)
+    #replyModal.modal.fade(tabindex='-1', aria-labelledby='replyModalLabel', aria-hidden='true')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    h5#replyModalLabel.modal-title Reply
+                    button.btn-close(type='button', data-bs-dismiss='modal', aria-label='Close')
+                .modal-body
+                    .postFormContainer
+                        .userImageContainer
+                            img(src=userLoggedIn.profilePic,alt="画像が読み込まれませんでした")
+                        .textareaContainer
+                            textarea#postTextarea(placeholder="what's happening?")
+                .modal-footer
+                    button.btn.btn-secondary(type='button', data-bs-dismiss='modal') Close
+                    button#submitReplyButton.btn.btn-primary(type='button', disabled='') Reply

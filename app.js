@@ -47,9 +47,10 @@ app.use("/api/posts", postApiRoute);
 // 第一引数はサーバー上のルートを設定
 // middleWare.requireLoginはとすることでミドルウェアをここのルートにだけ適用する
 app.get("/", middleWare.requireLogin, (req, res, next) => {
-    var payLoad = {
+    let payLoad = {
         pageTitle: "Home",
         userLoggedIn: req.session.user,
+        userLoggedInJs: JSON.stringify(req.session.user), // JSON 文字列に変換
     };
 
     // render()の第一引数は.ファイル名記述、渡したいデータ（DBから取得も可）→これをpugで読み込ませて表示

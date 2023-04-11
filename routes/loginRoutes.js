@@ -20,10 +20,10 @@ router.get("/", (req, res, next) => {
 
 // POSTメソッド
 router.post("/", async (req, res, next) => {
-    var payload = req.body;
+    let payload = req.body;
     if (req.body.logUsername && req.body.logPassword) {
         // すべて入力されている場合
-        var user = await User.findOne({
+        let user = await User.findOne({
             // ユーザー名またはメールアドレスが登録されているか確認
             $or: [{ username: req.body.logUsername }, { email: req.body.logUsername }],
         }).catch(error => {
@@ -36,7 +36,7 @@ router.post("/", async (req, res, next) => {
         if (user != null) {
             // ユーザー情報が取得できた場合
             // 入力されたパスワードが一致するか判別
-            var result = await bcrypt.compare(req.body.logPassword, user.password);
+            let result = await bcrypt.compare(req.body.logPassword, user.password);
 
             if (result === true) {
                 // ユーザー情報取得

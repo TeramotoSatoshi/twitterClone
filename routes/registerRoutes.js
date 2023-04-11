@@ -20,17 +20,17 @@ router.get("/", (req, res, next) => {
 // Post
 router.post("/", async (req, res, next) => {
     // 変数に代入
-    var firstName = req.body.firstName.trim();
-    var lastName = req.body.lastName.trim();
-    var username = req.body.username.trim();
-    var email = req.body.email.trim();
-    var password = req.body.password;
+    let firstName = req.body.firstName.trim();
+    let lastName = req.body.lastName.trim();
+    let username = req.body.username.trim();
+    let email = req.body.email.trim();
+    let password = req.body.password;
 
-    var payload = req.body;
+    let payload = req.body;
 
     if (firstName && lastName && username && email && password) {
         // すべて入力されている場合
-        var user = await User.findOne({
+        let user = await User.findOne({
             // ユーザー名またはメールアドレスが登録されているか確認
             $or: [{ username: username }, { email: email }],
         }).catch(error => {
@@ -41,7 +41,7 @@ router.post("/", async (req, res, next) => {
 
         if (user == null) {
             // No user found
-            var data = req.body;
+            let data = req.body;
             data.password = await bcrypt.hash(password, 10);
             User.create(data).then(user => {
                 req.session.user = user;
