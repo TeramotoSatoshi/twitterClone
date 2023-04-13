@@ -4,17 +4,3 @@ $(document).ready(() => {
        outputPosts(results, $(".postsContainer"));
     });
 })
-
-// 投稿作成
-function outputPosts(results, container) {
-    container.html("");
-
-    results.forEach(result => {
-        let html = createPostHtml(result);
-        container.append(html);
-    });
-
-    if (results.length == 0) {
-        container.append("<span class='noResults'>投稿がありません</span>")
-    }
-}

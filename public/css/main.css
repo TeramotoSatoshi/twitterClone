@@ -100,7 +100,11 @@ button span {
 .modal .postFormContainer {
     border: none;
     padding: 0;
-    padding-top: var(--spacing)
+    padding-top: var(--spacing);
+}
+
+.modal .post {
+    padding: 0 0 var(--spacing) 0;
 }
 
 .userImageContainer {
@@ -211,7 +215,6 @@ button span {
     color: var(--green);
 }
 
-
 .postButtonContainer.green button:hover {
     color: var(--green);
     background-color: var(--greenBackground);
@@ -222,4 +225,12 @@ button span {
     font-size: 13px;
     color: var(--grayText);
     margin-bottom: 5px;
+}
+
+.replyFlag {
+    margin-bottom: 5px;
+}
+
+.replyFlag a {
+    color: var(--blue);
 }

@@ -9,23 +9,24 @@ const Post = require("../../schemas/PostSchema");
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // GETメソッド
-router.get("/", (req, res, next) => {
-    Post.find() // DB検索
-    .populate("postedBy") // 外部キーに指定した"Key"を指定する
-    .populate("retweetData")
-    .sort({createdAt: -1}) // -1は降順
-    .then(async results => {
-        results = await User.populate(results, {path: "retweetData.postedBy"});
-        res.status(200).send(results);
-    })
-    .catch(error => {
-        console.log(error);
-        res.sendStatus(400);
-    })
+router.get("/",async (req, res, next) => {
+    let results = await getPosts({});
+    res.status(200).send(results);
+});
+
+// GETメソッド
+router.get("/:id", async(req, res, next) => {
+    // :id部分がreq.params.idとして使用される
+    let postId = req.params.id;
+    let results = await getPosts({_id: postId});
+    results = results[0];
+    res.status(200).send(results);
 });
 
 // POSTメソッド
 router.post("/", async (req, res, next) => {
+
+    // エラーハンドリング
     if (!req.body.content) {
         console.log("データが正しく送信されませんでした");
         return res.sendStatus(400);
@@ -35,6 +36,10 @@ router.post("/", async (req, res, next) => {
         content: req.body.content,
         postedBy: req.session.user,
     };
+
+    if(req.body.replyTo) {
+        postData.replyTo = req.body.replyTo;
+    }
 
     Post.create(postData)
         .then(async newPost => {
@@ -49,12 +54,10 @@ router.post("/", async (req, res, next) => {
 
 // PUTメソッド
 router.put("/:id/like", async (req, res, next) => {
-
+    // :id部分がreq.params.idとして使用される
     let postId = req.params.id;
     let userId = req.session.user._id;
-
     let isLiked = req.session.user.likes && req.session.user.likes.includes(postId);
-
     let option = isLiked ? "$pull" : "$addToSet";
     // ユーザースキーマの配列フィールドに値を追加する({$addToSet: {フィールド名: 追加する値}}}) -- 値の重複を許さない
     // new: true → 更新後データを取得する
@@ -76,7 +79,7 @@ router.put("/:id/like", async (req, res, next) => {
 
 // POSTメソッド
 router.post("/:id/retweet", async (req, res, next) => {
-
+    // :id部分がreq.params.idとして使用される
     let postId = req.params.id;
     let userId = req.session.user._id;
 
@@ -128,6 +131,19 @@ router.post("/:id/retweet", async (req, res, next) => {
 
     res.status(200).send(post);
 });
+
+// 投稿取得
+async function getPosts(filter) {
+    let results = await Post.find(filter) // DB検索
+    .populate("postedBy") // 外部キーに指定した"Key"を指定する
+    .populate("retweetData")
+    .populate("replyTo") // 参照先のデータ取得
+    .sort({createdAt: -1}) // -1は降順
+    .catch(error => console.log(error))
+
+    results = await User.populate(results, {path: "replyTo.postedBy"});
+    return await User.populate(results, {path: "retweetData.postedBy"});
+}
 
 // routerをどこでも使えるようにする
 module.exports = router;

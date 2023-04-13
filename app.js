@@ -43,9 +43,7 @@ app.use("/logout", logoutRoute);
 
 app.use("/api/posts", postApiRoute);
 
-// getメソッド
-// 第一引数はサーバー上のルートを設定
-// middleWare.requireLoginはとすることでミドルウェアをここのルートにだけ適用する
+// ルートパスのGETリクエストに対するレスポンスの設定
 app.get("/", middleWare.requireLogin, (req, res, next) => {
     let payLoad = {
         pageTitle: "Home",
