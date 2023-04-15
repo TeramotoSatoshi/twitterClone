@@ -62,7 +62,7 @@ $("#replyModal").on("show.bs.modal", event => {
     $("#submitReplyButton").data("id", postId);
 
     $.get("/api/posts/" + postId, results => {
-        outputPosts(results, $("#originalPostContainer"));
+        outputPosts(results.postData, $("#originalPostContainer"));
      });
 })
 
@@ -91,6 +91,7 @@ $(document).on("click", ".likeButton", event => {
     })
 });
 
+
 // リツイートボタン押下イベント
 $(document).on("click", ".retweetButton" ,(event) => {
     let button = $(event.target);
@@ -112,24 +113,32 @@ $(document).on("click", ".retweetButton" ,(event) => {
     })
 });
 
+// 投稿押下イベント
+$(document).on("click", ".post", event => {
+    let element = $(event.target);
+    let postId = getPostIdFormElement(element);
+    if(postId !== undefined && !element.is("button")) {
+        window.location.href = "/posts/" + postId;
+    }
+});
+
 // ID取得
 function getPostIdFormElement(element) {
     // postクラスが存在する場合trueを返す
     let isRoot = element.hasClass(".post");
-    console.log("isRoot", isRoot);
+
     let rootElement = isRoot == true ? element : element.closest(".post"); // falseなら親要素取得（post）
-    console.log("rootElement", rootElement.data());
+
     let postId = rootElement.data().id;
     if(postId === undefined) return alert("alert");
     return postId;
 }
 
 // 投稿作成イベント
-function createPostHtml(postData) {
+function createPostHtml(postData, largeFont = false) {
 
     // 投稿データがなければアラート
-    if(postData == null) return alert("Post Object Is Null");
-
+    if(postData == null) return alert("投稿がありません");
     // リツイートデータ判定
     let isRetweet = postData.retweetData !== undefined;
     // リツイートデータであれば投稿者を取得
@@ -142,15 +151,16 @@ function createPostHtml(postData) {
     // 投稿者がいない場合
     if(posted._id === undefined) return console.log("User Object not populated");
 
-    // ユーザー名取得
+    // 表示用ユーザー名取得
     let displayName = posted.firstName + " " + posted.lastName;
-    // 投稿された時間を取得
+    // 表示用時間取得
     let timestamp = timeDifference(new Date(), new Date(postData.createdAt));
-    // データにいいねがあればactiveにする
+    // 投稿にいいねがあればいいねボタンをactiveにする
     let likeButtonActiveClass = postData.likes.includes(userLoggedIn._id) ? "active" : "";
-    // データにリツイートユーザがいればactiveにする
+    // 投稿にリツイートユーザがいればリツイートactiveにする
     let retweetButtonActiveClass = postData.retweetUsers.includes(userLoggedIn._id) ? "active" : "";
-
+    // フォントサイズ大きく
+    let largeFontClass = largeFont? "largeFont" : "";
 
     let retweetText = "";
     // リツイートテキスト挿入
@@ -162,10 +172,13 @@ function createPostHtml(postData) {
     }
 
     let replyFlag = "";
-    if(postData.replyTo) {
+    if(postData.replyTo && postData.replyTo._id) {
+        // リプライがある場合
         if(!postData.replyTo._id) {
+            // リプライ投稿のIDなければアラート
             return alert("Reply to is not populated");
         } else if(!postData.replyTo.postedBy._id) {
+            // リプライ投稿者のIDなければアラート
             return alert("Posted By is not populated");
         }
 
@@ -175,9 +188,8 @@ function createPostHtml(postData) {
                     </div>`;
     }
 
-
     return (
-        `<div class='post' data-id='${postData._id}'>
+        `<div class='post ${largeFontClass}' data-id='${postData._id}'>
             <div class="postActionContainer">
                 ${retweetText}
             </div>
@@ -192,7 +204,7 @@ function createPostHtml(postData) {
                         <span class="date">${timestamp}</span>
                     </div>
                     ${replyFlag}
-                    <div class="postedBy">
+                    <div class="postBody">
                         <span>${postData.content}</span>
                     </div>
                     <div class="postFooter">
@@ -251,16 +263,37 @@ function timeDifference(current, previous) {
 function outputPosts(results, container) {
     container.html("");
 
+    // 配列でなければそのまま代入
     if(!Array.isArray(results)) {
         results = [results];
     }
 
+    // 繰り返し処理
     results.forEach(result => {
         let html = createPostHtml(result);
         container.append(html);
     });
 
+    // 投稿がない場合
     if (results.length == 0) {
         container.append("<span class='noResults'>投稿がありません</span>")
     }
+}
+
+function outputPostsWithReplies(results, container) {
+    container.html("");
+
+    if(results.replyTo !== undefined && results.replyTo._id !== undefined) {
+        let html = createPostHtml(results.replyTo);
+        container.append(html);
+    }
+
+    let mainPostHtml = createPostHtml(results.postData, true);
+    container.append(mainPostHtml);
+
+    // 繰り返し処理
+    results.replies.forEach(result => {
+        let html = createPostHtml(result);
+        container.append(html);
+    });
 }

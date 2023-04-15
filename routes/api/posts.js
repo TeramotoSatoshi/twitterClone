@@ -18,8 +18,20 @@ router.get("/",async (req, res, next) => {
 router.get("/:id", async(req, res, next) => {
     // :id部分がreq.params.idとして使用される
     let postId = req.params.id;
-    let results = await getPosts({_id: postId});
-    results = results[0];
+    let postData = await getPosts({_id: postId});
+    postData = postData[0];
+
+    let results = {
+        postData: postData
+    }
+
+    // リプライがあれば取得
+    if(postData.replyTo !== undefined) {
+        results.replyTo = postData.replyTo;
+    }
+
+    // リプライ取得
+    results.replies = await getPosts({ replyTo: postId });
     res.status(200).send(results);
 });
 
@@ -79,7 +91,7 @@ router.put("/:id/like", async (req, res, next) => {
 
 // POSTメソッド
 router.post("/:id/retweet", async (req, res, next) => {
-    // :id部分がreq.params.idとして使用される
+
     let postId = req.params.id;
     let userId = req.session.user._id;
 
