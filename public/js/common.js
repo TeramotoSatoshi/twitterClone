@@ -67,20 +67,44 @@ $("#replyModal").on("show.bs.modal", event => {
 })
 
 // モーダル閉じる
-$("#replyModal").on("hidden.bs.modal", event => $("#originalPostContainer").html(""))
+$("#replyModal").on("hidden.bs.modal", () => $("#originalPostContainer").html(""))
 
+// 削除モーダル開くイベント
+$("#deletePostModal").on("show.bs.modal", event => {
+    let button = $(event.relatedTarget);
+    let postId = getPostIdFormElement(button);
+    // ボタンIDに投稿ID設定
+    $("#deletePostButton").data("id", postId);
+})
+
+// 静的要素に紐づける形
+$("#deletePostButton").click((event) => {
+    let postId = $(event.target).data("id");
+    //
+    $.ajax({
+        url: `/api/posts/${postId}`,
+        type: "DELETE",
+        success: (data, status, xhr) => {
+            if(xhr.status != 202) {
+                alert("投稿を削除できませんでした");
+                return;
+            }
+            location.reload();
+        }
+    })
+})
+
+// 動的要素に紐づける形
 // いいねボタン押下イベント
 $(document).on("click", ".likeButton", event => {
     let button = $(event.target);
     let postId = getPostIdFormElement(button);
-
     if(postId === undefined) return;
-
+    // いいね更新
     $.ajax({
         url: `/api/posts/${postId}/like`,
         type: "PUT",
         success: (postData) => {
-
             button.find("span").text(postData.likes.length || "");
             if(postData.likes.includes(userLoggedIn._id)) {
                 button.addClass("active");
@@ -90,7 +114,6 @@ $(document).on("click", ".likeButton", event => {
         }
     })
 });
-
 
 // リツイートボタン押下イベント
 $(document).on("click", ".retweetButton" ,(event) => {
@@ -126,9 +149,8 @@ $(document).on("click", ".post", event => {
 function getPostIdFormElement(element) {
     // postクラスが存在する場合trueを返す
     let isRoot = element.hasClass(".post");
-
+    // postクラスが存在する場合引数を返し、存在しない場合親にpostクラスを持つ要素を取得
     let rootElement = isRoot == true ? element : element.closest(".post"); // falseなら親要素取得（post）
-
     let postId = rootElement.data().id;
     if(postId === undefined) return alert("alert");
     return postId;
@@ -188,6 +210,11 @@ function createPostHtml(postData, largeFont = false) {
                     </div>`;
     }
 
+    let buttons = "";
+    if(postData.postedBy._id == userLoggedIn._id) {
+        buttons = `<button data-id="${postData._id}" data-toggle="modal" data-target="#deletePostModal"><i class='fas fa-times'></i></button>`
+    }
+
     return (
         `<div class='post ${largeFontClass}' data-id='${postData._id}'>
             <div class="postActionContainer">
@@ -202,6 +229,7 @@ function createPostHtml(postData, largeFont = false) {
                         <a href='/profile/$(postedBy.username)' class="displayName">${displayName}</a>
                         <span class="username">${posted.username}</span>
                         <span class="date">${timestamp}</span>
+                        ${buttons}
                     </div>
                     ${replyFlag}
                     <div class="postBody">

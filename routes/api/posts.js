@@ -64,31 +64,6 @@ router.post("/", async (req, res, next) => {
         });
 });
 
-// PUTメソッド
-router.put("/:id/like", async (req, res, next) => {
-    // :id部分がreq.params.idとして使用される
-    let postId = req.params.id;
-    let userId = req.session.user._id;
-    let isLiked = req.session.user.likes && req.session.user.likes.includes(postId);
-    let option = isLiked ? "$pull" : "$addToSet";
-    // ユーザースキーマの配列フィールドに値を追加する({$addToSet: {フィールド名: 追加する値}}}) -- 値の重複を許さない
-    // new: true → 更新後データを取得する
-    req.session.user = await User.findByIdAndUpdate(userId, { [option]: {likes: postId}}, {new: true})
-    .catch(error => {
-        console.log(error);
-        res.sendStatus(400);
-    })
-
-    // 投稿スキーマの配列フィールドに値を追加する({$addToSet: {フィールド名: 追加する値}}) -- 値の重複を許さない
-    var post = await Post.findByIdAndUpdate(postId, { [option]: {likes: userId}}, {new: true})
-    .catch(error => {
-        console.log(error);
-        res.sendStatus(400);
-    })
-
-    res.status(200).send(post);
-});
-
 // POSTメソッド
 router.post("/:id/retweet", async (req, res, next) => {
 
@@ -142,6 +117,41 @@ router.post("/:id/retweet", async (req, res, next) => {
     // })
 
     res.status(200).send(post);
+});
+
+// PUTメソッド
+router.put("/:id/like", async (req, res, next) => {
+    // :id部分がreq.params.idとして使用される
+    let postId = req.params.id;
+    let userId = req.session.user._id;
+    let isLiked = req.session.user.likes && req.session.user.likes.includes(postId);
+    let option = isLiked ? "$pull" : "$addToSet";
+    // ユーザースキーマの配列フィールドに値を追加する({$addToSet: {フィールド名: 追加する値}}}) -- 値の重複を許さない
+    // new: true → 更新後データを取得する
+    req.session.user = await User.findByIdAndUpdate(userId, { [option]: {likes: postId}}, {new: true})
+    .catch(error => {
+        console.log(error);
+        res.sendStatus(400);
+    })
+
+    // 投稿スキーマの配列フィールドに値を追加する({$addToSet: {フィールド名: 追加する値}}) -- 値の重複を許さない
+    var post = await Post.findByIdAndUpdate(postId, { [option]: {likes: userId}}, {new: true})
+    .catch(error => {
+        console.log(error);
+        res.sendStatus(400);
+    })
+
+    res.status(200).send(post);
+});
+
+// DELETEメソッド
+router.delete("/:id", (req, res, next) => {
+    Post.findByIdAndDelete(req.params.id)
+    .then(() => res.sendStatus(202))
+    .catch(error => {
+        console.log(error);
+        res.sendStatus(400)
+    })
 });
 
 // 投稿取得

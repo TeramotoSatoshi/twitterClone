@@ -26,3 +26,21 @@ mixin createReplyModal(userLoggedIn)
                 .modal-footer
                     button.btn.btn-secondary(type='button', data-bs-dismiss='modal') Close
                     button#submitReplyButton.btn.btn-primary(type='button', disabled='') Reply
+
+//- 削除モーダル作成関数
+mixin createDeletePostModal()
+    #deletePostModal.modal.fade(tabindex='-1', aria-labelledby='deletePostModalLabel', aria-hidden='true')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    h5#deletePosModalLabel.modal-title 投稿を削除しますか？
+                    button.btn-close(type='button', data-bs-dismiss='modal', aria-label='Close')
+                .modal-body
+                    p これを削除することができません
+                .modal-footer
+                    button.btn.btn-secondary(type='button', data-bs-dismiss='modal') Close
+                    button#deletePostButton.btn.btn-primary(type='button') Delete
+
+mixin createPostModal(userLoggedIn)
+    +createReplyModal(userLoggedIn)
+    +createDeletePostModal()
