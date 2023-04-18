@@ -37,6 +37,7 @@ const profileRoute = require("./routes/profileRoutes");
 
 // Api roots
 const postApiRoute = require("./routes/api/posts");
+const userApiRoute = require("./routes/api/users");
 
 // ミドルウェア関数を実行する
 app.use("/login", loginRoute);
@@ -46,6 +47,7 @@ app.use("/posts",middleWare.requireLogin, postRoute);
 app.use("/profile",middleWare.requireLogin, profileRoute);
 
 app.use("/api/posts", postApiRoute);
+app.use("/api/users", userApiRoute);
 
 // ルートパスのGETリクエストに対するレスポンスの設定
 app.get("/", middleWare.requireLogin, (req, res, next) => {

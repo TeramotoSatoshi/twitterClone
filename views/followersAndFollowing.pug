@@ -1,0 +1,19 @@
+//- レイアウト読み込み//
+extends layouts/main-layout.pug
+
+block content
+    if !profileUser
+        span.errorMessage URLを確認してサイドアクセスしてください
+    else
+        script.
+            let profileUserId = '!{profileUser._id}';
+            let selectedTab = '!{selectedTab}';
+
+        .tabContainer
+            +createTab("フォロー中", `/profile/${profileUser.username}/following`, selectedTab != "followers")
+            +createTab("フォロワー", `/profile/${profileUser.username}/followers`, selectedTab == "followers")
+
+        .resultContainer
+
+block scripts
+    script(src="/js/followersAndFollowing.js")

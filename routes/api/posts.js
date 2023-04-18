@@ -10,14 +10,39 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // GETメソッド
 router.get("/", async (req, res, next) => {
-
+    console.log(req.query);
     let searchObj = req.query;
     if(searchObj.isReply !== undefined) {
         let isReply = searchObj.isReply == "true";
+        // 存在チェック（trueなら存在するものを探す）
         searchObj.replyTo = { $exists: isReply };
         delete searchObj.isReply;
-        console.log(searchObj);
     }
+
+    if(searchObj.followingOnly !== undefined) {
+        // 引数判定
+        let followingOnly = searchObj.followingOnly == "true";
+
+        if(followingOnly) {
+            // フォローしているユーザー取得
+            let objectIds = [];
+
+            if(!req.session.user.following) {
+                req.session.user.following = [];
+            }
+            req.session.user.following.forEach(user => {
+                objectIds.push(user);
+            })
+            // 自身も追加
+            objectIds.push(req.session.user._id);
+            // searchObj.postedByフィールドの値がobjectIds配列の中に含まれるか確認
+            searchObj.postedBy = { $in: objectIds };
+        }
+
+        // followingOnlyプロパティ削除
+        delete searchObj.followingOnly;
+    }
+
     let results = await getPosts(searchObj);
     res.status(200).send(results);
 });

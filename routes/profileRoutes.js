@@ -31,6 +31,23 @@ router.get("/:username/replies",async (req, res, next) => {
     res.status(200).render("profilePage", payLoad);
 });
 
+// GETメソッド
+router.get("/:username/following",async (req, res, next) => {
+
+    let payLoad = await getPayload(req.params.username, req.session.user);
+    console.log(payLoad);
+    payLoad.selectedTab = "following"
+    res.status(200).render("followersAndFollowing", payLoad);
+});
+
+// GETメソッド
+router.get("/:username/followers",async (req, res, next) => {
+
+    let payLoad = await getPayload(req.params.username, req.session.user);
+    payLoad.selectedTab = "followers"
+    res.status(200).render("followersAndFollowing", payLoad);
+});
+
 // 投稿取得
 async function getPayload(username,userLoggedIn) {
 

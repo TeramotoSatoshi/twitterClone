@@ -145,6 +145,40 @@ $(document).on("click", ".post", event => {
     }
 });
 
+// 投稿押下イベント
+$(document).on("click", ".followButton", event => {
+    let button = $(event.target);
+    let userId = button.data().user;
+
+    $.ajax({
+        url: `/api/users/${userId}/follow`,
+        type: "PUT",
+        success: (data, status, xhr) => {
+            if(xhr.status == 404) {
+                alert("user not found");
+                return;
+            }
+            // フォロワーの差分定義
+            let difference = 1;
+            // 配列が存在し、Idを含んでいれば
+            if(data.following && data.following.includes(userId)) {
+                button.addClass("following");
+                button.text("フォロー中");
+            } else {
+                button.removeClass("following");
+                button.text("フォローする");
+                difference = -1;
+            }
+
+            let followersLabel = $("#followersValue")
+            if(followersLabel.length != 0) {
+                let followersText = parseInt(followersLabel.text());
+                followersLabel.text(followersText + difference);
+            }
+        }
+    })
+});
+
 // ID取得
 function getPostIdFormElement(element) {
     // postクラスが存在する場合trueを返す

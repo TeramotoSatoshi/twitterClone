@@ -46,7 +46,7 @@ mixin createPostModal(userLoggedIn)
     +createDeletePostModal()
 
 mixin createFollowButton(user, isFollowing)
-    - text = isFollowing ? "フォロー中" : "フォロー"
+    - text = isFollowing ? "フォロー中" : "フォローする"
     - buttonClass = isFollowing ? "followButton following" : "followButton"
     button(class=buttonClass, data-user=user._id) #{text}
 
