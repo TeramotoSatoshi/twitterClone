@@ -10,7 +10,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // GETメソッド
 router.get("/", async (req, res, next) => {
-    console.log(req.query);
     let searchObj = req.query;
     if(searchObj.isReply !== undefined) {
         let isReply = searchObj.isReply == "true";

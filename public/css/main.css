@@ -269,6 +269,10 @@ button span {
     margin-left: var(--spacing);
     position: absolute;
     bottom: -66px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .profileHeaderContainer .userImageContainer img{
@@ -369,3 +373,23 @@ button span {
     flex: 1;
     padding: 0 var(--spacing);
 }
+
+.profilePictureButton {
+    position: absolute;
+    font-size: 50px;
+    color: rgba(0,0,0,0.6);
+    display: none;
+}
+
+.userImageContainer:hover .profilePictureButton {
+     display: block;
+}
+
+/* イメージのサイズがコンテナーに完全に収まるようにします */
+#imagePreview {
+    width: 100%;
+    display : block;
+
+   /* このルールは非常に重要です。無視しないでください */
+   max-width :  100% ;
+ }

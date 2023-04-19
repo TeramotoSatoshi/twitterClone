@@ -33,7 +33,7 @@ mixin createDeletePostModal()
         .modal-dialog
             .modal-content
                 .modal-header
-                    h5#deletePosModalLabel.modal-title 投稿を削除しますか？
+                    h5#deletePostModalLabel.modal-title 投稿を削除しますか？
                     button.btn-close(type='button', data-bs-dismiss='modal', aria-label='Close')
                 .modal-body
                     p これを削除することができません
@@ -41,16 +41,35 @@ mixin createDeletePostModal()
                     button.btn.btn-secondary(type='button', data-bs-dismiss='modal') Close
                     button#deletePostButton.btn.btn-primary(type='button') Delete
 
+//- モーダル作成関数
 mixin createPostModal(userLoggedIn)
     +createReplyModal(userLoggedIn)
     +createDeletePostModal()
 
+//- フォローボタン作成
 mixin createFollowButton(user, isFollowing)
     - text = isFollowing ? "フォロー中" : "フォローする"
     - buttonClass = isFollowing ? "followButton following" : "followButton"
     button(class=buttonClass, data-user=user._id) #{text}
 
+//- タブ作成
 mixin createTab(name, href, isSelected)
     - className = isSelected ? "tab active" : "tab"
     a(href=href, class=className)
         span #{name}
+
+//- 削除モーダル作成関数
+mixin createImageUploadModal()
+    #imageUploadModal.modal.fade(tabindex='-1', aria-labelledby='imageUploadModalLabel', aria-hidden='true')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    h5#imageUploadModalLabel.modal-title 新しいプロフィール画像
+                    button.btn-close(type='button', data-bs-dismiss='modal', aria-label='Close')
+                .modal-body
+                    input#filePhoto(type="file", name="filePhoto")
+                    .imagePreviewContainer
+                        img#imagePreview
+                .modal-footer
+                    button.btn.btn-secondary(type='button', data-bs-dismiss='modal') キャンセル
+                    button#imageUploadButton.btn.btn-primary(type='button') 保存

@@ -1,3 +1,7 @@
+// グローバル
+let cropper;
+
+
 // postTextareaにキーが押された時のアクションを割り当て
 $("#postTextarea, #replyTextarea").keyup((event) => {
     let textBox = $(event.target);
@@ -77,7 +81,8 @@ $("#deletePostModal").on("show.bs.modal", event => {
     $("#deletePostButton").data("id", postId);
 })
 
-// 静的要素に紐づける形
+// 静的要素に紐づける
+// 投稿削除ボタン押下イベント
 $("#deletePostButton").click((event) => {
     let postId = $(event.target).data("id");
     //
@@ -94,7 +99,59 @@ $("#deletePostButton").click((event) => {
     })
 })
 
-// 動的要素に紐づける形
+// 画像が選択された時のイベント
+$("#filePhoto").change(function() {
+
+    // input.filesが存在し、かつ少なくとも1つのファイルが選択されている場合
+    if(this.files && this.files[0]) {
+        let reader = new FileReader();
+        // ファイル読み込み完了時
+        reader.onload = (e) => {
+            let image = document.getElementById("imagePreview");
+            image.src = e.target.result;
+
+            // cropper変数を空にする
+            if(cropper !== undefined) cropper.destroy();
+            cropper = new Cropper(image, {
+                aspectRatio: 1 / 1, // (正方形) アスペクト比
+                background: false // 背景が表示されず、クロッピング領域
+            });
+        }
+        // ファイルをデータURLとして読み込む
+        reader.readAsDataURL(this.files[0]);
+    }
+
+})
+
+// 画像保存ボタン押下イベント
+$("#imageUploadButton").click(() => {
+    // トリミング領域取得
+    let canvas = cropper.getCroppedCanvas();
+
+    if(canvas == null) {
+        alert("画像をアップロードできませんでした。再度試して下さい");
+        return;
+    }
+
+    // CanvasからBlobオブジェクトを生成する(バイナリにする)
+    canvas.toBlob((blob) => {
+        // HTMLからフォームデータを作成しサーバーに送信できるようにする
+        let formData = new FormData();
+        formData.append("croppedImage", blob);
+
+        $.ajax({
+            url: "/api/users/profilePicture",
+            type: "POST",
+            data: formData,
+            processData: false, // データを自動的に文字列に変換せずに送信
+            contentType: false, // jQueryが自動的にContent-Typeヘッダーを設定しない
+            success: () => location.reload()
+        })
+    })
+
+})
+
+// 動的要素に紐づける
 // いいねボタン押下イベント
 $(document).on("click", ".likeButton", event => {
     let button = $(event.target);
@@ -342,6 +399,7 @@ function outputPosts(results, container) {
     }
 }
 
+// リプライ作成
 function outputPostsWithReplies(results, container) {
     container.html("");
 
