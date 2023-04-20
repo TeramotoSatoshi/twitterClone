@@ -1,7 +1,6 @@
 // グローバル
 let cropper;
 
-
 // postTextareaにキーが押された時のアクションを割り当て
 $("#postTextarea, #replyTextarea").keyup((event) => {
     let textBox = $(event.target);
@@ -58,7 +57,7 @@ $("#submitPostButton, #submitReplyButton").click((event) => {
     });
 });
 
-// モーダル開くイベント
+// 返信モーダル開くイベント
 $("#replyModal").on("show.bs.modal", event => {
     let button = $(event.relatedTarget);
     let postId = getPostIdFormElement(button);
@@ -70,7 +69,7 @@ $("#replyModal").on("show.bs.modal", event => {
      });
 })
 
-// モーダル閉じる
+// 返信モーダル閉じる
 $("#replyModal").on("hidden.bs.modal", () => $("#originalPostContainer").html(""))
 
 // 削除モーダル開くイベント
@@ -79,6 +78,22 @@ $("#deletePostModal").on("show.bs.modal", event => {
     let postId = getPostIdFormElement(button);
     // ボタンIDに投稿ID設定
     $("#deletePostButton").data("id", postId);
+})
+
+// ピン止めモーダル開くイベント
+$("#confirmPinModal").on("show.bs.modal", event => {
+    let button = $(event.relatedTarget);
+    let postId = getPostIdFormElement(button);
+    // ボタンIDに投稿ID設定
+    $("#pinPostButton").data("id", postId);
+})
+
+// ピン止めモーダル開くイベント
+$("#unPinModal").on("show.bs.modal", event => {
+    let button = $(event.relatedTarget);
+    let postId = getPostIdFormElement(button);
+    // ボタンIDに投稿ID設定
+    $("#unPinPostButton").data("id", postId);
 })
 
 // 静的要素に紐づける
@@ -99,7 +114,43 @@ $("#deletePostButton").click((event) => {
     })
 })
 
-// 画像が選択された時のイベント
+// ピン保存ボタン押下イベント
+$("#pinPostButton").click((event) => {
+    let postId = $(event.target).data("id");
+
+    $.ajax({
+        url: `/api/posts/${postId}`,
+        type: "PUT",
+        data: { pinned: true },
+        success: (data, status, xhr) => {
+            if(xhr.status != 204) {
+                alert("投稿をピン止めできませんでした");
+                return;
+            }
+            location.reload();
+        }
+    })
+})
+
+// ピン解除ボタン押下イベント
+$("#unPinPostButton").click((event) => {
+    let postId = $(event.target).data("id");
+
+    $.ajax({
+        url: `/api/posts/${postId}`,
+        type: "PUT",
+        data: { pinned: false },
+        success: (data, status, xhr) => {
+            if(xhr.status != 204) {
+                alert("投稿をピン止めできませんでした");
+                return;
+            }
+            location.reload();
+        }
+    })
+})
+
+// プロフィール画像が選択された時のイベント
 $("#filePhoto").change(function() {
 
     // input.filesが存在し、かつ少なくとも1つのファイルが選択されている場合
@@ -120,10 +171,32 @@ $("#filePhoto").change(function() {
         // ファイルをデータURLとして読み込む
         reader.readAsDataURL(this.files[0]);
     }
-
 })
 
-// 画像保存ボタン押下イベント
+// 背景画像が選択された時のイベント
+$("#coverPhoto").change(function() {
+
+    // input.filesが存在し、かつ少なくとも1つのファイルが選択されている場合
+    if(this.files && this.files[0]) {
+        let reader = new FileReader();
+        // ファイル読み込み完了時
+        reader.onload = (e) => {
+            let image = document.getElementById("coverPreview");
+            image.src = e.target.result;
+
+            // cropper変数を空にする
+            if(cropper !== undefined) cropper.destroy();
+            cropper = new Cropper(image, {
+                aspectRatio: 3 / 1, // (正方形) アスペクト比
+                background: false // 背景が表示されず、クロッピング領域
+            });
+        }
+        // ファイルをデータURLとして読み込む
+        reader.readAsDataURL(this.files[0]);
+    }
+})
+
+// プロフィール画像保存ボタン押下イベント
 $("#imageUploadButton").click(() => {
     // トリミング領域取得
     let canvas = cropper.getCroppedCanvas();
@@ -148,7 +221,33 @@ $("#imageUploadButton").click(() => {
             success: () => location.reload()
         })
     })
+})
 
+// 背景画像保存ボタン押下イベント
+$("#coverPhotoButton").click(() => {
+    // トリミング領域取得
+    let canvas = cropper.getCroppedCanvas();
+
+    if(canvas == null) {
+        alert("画像をアップロードできませんでした。再度試して下さい");
+        return;
+    }
+
+    // CanvasからBlobオブジェクトを生成する(バイナリにする)
+    canvas.toBlob((blob) => {
+        // HTMLからフォームデータを作成しサーバーに送信できるようにする
+        let formData = new FormData();
+        formData.append("croppedImage", blob);
+
+        $.ajax({
+            url: "/api/users/coverPhoto",
+            type: "POST",
+            data: formData,
+            processData: false, // データを自動的に文字列に変換せずに送信
+            contentType: false, // jQueryが自動的にContent-Typeヘッダーを設定しない
+            success: () => location.reload()
+        })
+    })
 })
 
 // 動的要素に紐づける
@@ -302,8 +401,19 @@ function createPostHtml(postData, largeFont = false) {
     }
 
     let buttons = "";
+    let pinnedPostText = "";
+
     if(postData.postedBy._id == userLoggedIn._id) {
-        buttons = `<button data-id="${postData._id}" data-toggle="modal" data-target="#deletePostModal"><i class='fas fa-times'></i></button>`
+        let pinnedClass =  "";
+        let dataTarget = "#confirmPinModal";
+        if(postData.pinned === true) {
+            pinnedClass = "active";
+            dataTarget = "#unPinModal";
+            pinnedPostText = "<i class='fas fa-thumbtack'></i> <span>Pinned post</span>";
+        }
+
+        buttons = `<button class="pinButton ${pinnedClass}" data-id="${postData._id}" data-toggle="modal" data-target="${dataTarget}"><i class='fas fa-thumbtack'></i></button>
+                    <button data-id="${postData._id}" data-toggle="modal" data-target="#deletePostModal"><i class='fas fa-times'></i></button>`
     }
 
     return (
@@ -316,6 +426,7 @@ function createPostHtml(postData, largeFont = false) {
                     <img src=${posted.profilePic}>
                 </div>
                 <div class="postContentContainer">
+                    <div class="pinnedPostText">${pinnedPostText}</div>
                     <div class="header">
                         <a href='/profile/${posted.username}' class="displayName">${displayName}</a>
                         <span class="username">@${posted.username}</span>
@@ -399,7 +510,10 @@ function outputPosts(results, container) {
     }
 }
 
+
 // リプライ作成
+
+// リプライ投稿作成
 function outputPostsWithReplies(results, container) {
     container.html("");
 

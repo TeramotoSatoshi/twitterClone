@@ -13,7 +13,14 @@ block content
         - var followingCount = profileUser.following.length;
 
         .profileHeaderContainer
-            .coverPhotoContainer
+            .coverPhotoSection
+                .coverPhotoContainer
+                    if profileUser.coverPhoto
+                        img(src=profileUser.coverPhoto, alt="背景画像")
+
+                    if profileUser._id == userLoggedIn._id
+                        button.coverPhotoButton(data-toggle="modal", data-target="#coverPhotoModal")
+                            i.fas.fa-camera
 
                 .userImageContainer
                     img(src=profileUser.profilePic, alt="User Profile Image")
@@ -49,10 +56,13 @@ block content
         .tabContainer
             +createTab("Posts", `/profile/${profileUser.username}`, selectedTab != "replies" && selectedTab != "messages")
             +createTab("Replies", `/profile/${profileUser.username}/replies`, selectedTab == "replies")
+
+        .pinnedPostContainer
         .postsContainer
 
         +createPostModal(userLoggedIn)
         +createImageUploadModal()
+        +createCoverPhotoUploadModal()
 
 block scripts
     script(src="/js/profile.js")

@@ -45,6 +45,8 @@ mixin createDeletePostModal()
 mixin createPostModal(userLoggedIn)
     +createReplyModal(userLoggedIn)
     +createDeletePostModal()
+    +createPinnedPostModal()
+    +createUnPinnedPostModal()
 
 //- フォローボタン作成
 mixin createFollowButton(user, isFollowing)
@@ -58,7 +60,7 @@ mixin createTab(name, href, isSelected)
     a(href=href, class=className)
         span #{name}
 
-//- 削除モーダル作成関数
+//- プロフィール画像登録モーダル作成
 mixin createImageUploadModal()
     #imageUploadModal.modal.fade(tabindex='-1', aria-labelledby='imageUploadModalLabel', aria-hidden='true')
         .modal-dialog
@@ -73,3 +75,48 @@ mixin createImageUploadModal()
                 .modal-footer
                     button.btn.btn-secondary(type='button', data-bs-dismiss='modal') キャンセル
                     button#imageUploadButton.btn.btn-primary(type='button') 保存
+
+//- 背景画像登録モーダル作成
+mixin createCoverPhotoUploadModal()
+    #coverPhotoModal.modal.fade(tabindex='-1', aria-labelledby='coverPhotoModalLabel', aria-hidden='true')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    h5#coverPhotoModalLabel.modal-title 新しい背景画像
+                    button.btn-close(type='button', data-bs-dismiss='modal', aria-label='Close')
+                .modal-body
+                    input#coverPhoto(type="file", name="filePhoto")
+                    .imagePreviewContainer
+                        img#coverPreview
+                .modal-footer
+                    button.btn.btn-secondary(type='button', data-bs-dismiss='modal') キャンセル
+                    button#coverPhotoButton.btn.btn-primary(type='button') 保存
+
+//- ピンモーダル作成
+mixin createPinnedPostModal()
+    #confirmPinModal.modal.fade(tabindex='-1', aria-labelledby='confirmPinModalLabel', aria-hidden='true')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    h5#confirmPinModalLabel.modal-title 投稿をピン止めしますか？
+                    button.btn-close(type='button', data-bs-dismiss='modal', aria-label='Close')
+                .modal-body
+                    p この投稿はあなたのプロフィールの一番上に表示されます。
+                    p 1つの投稿しかピン留めできません。
+                .modal-footer
+                    button.btn.btn-secondary(type='button', data-bs-dismiss='modal') キャンセル
+                    button#pinPostButton.btn.btn-primary(type='button') ピン
+
+//- ピン外す
+mixin createUnPinnedPostModal()
+    #unPinModal.modal.fade(tabindex='-1', aria-labelledby='unPinModalLabel', aria-hidden='true')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    h5#unPinModalLabel.modal-title ピンを外しますか？
+                    button.btn-close(type='button', data-bs-dismiss='modal', aria-label='Close')
+                .modal-body
+                    p この投稿のピンは解除されます
+                .modal-footer
+                    button.btn.btn-secondary(type='button', data-bs-dismiss='modal') キャンセル
+                    button#unPinPostButton.btn.btn-primary(type='button') ピンを解除

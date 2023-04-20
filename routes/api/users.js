@@ -73,7 +73,7 @@ router.get("/:userId/following", async (req, res, next) => {
 // プロフィール画像アップロード
 // upload.single("croppedImage")は、アップロードされたファイルを解析するためにmulterに使用されるミドルウェア関数
 // "croppedImage"は、アップロードされたファイルのフィールド名
-router.post("/:profilePicture", upload.single("croppedImage"), async (req, res, next) => {
+router.post("/profilePicture", upload.single("croppedImage"), async (req, res, next) => {
     // ファイルが空の場合
     if(!req.file) {
         console.log("ファイルをアップロードできませんでした")
@@ -95,6 +95,35 @@ router.post("/:profilePicture", upload.single("croppedImage"), async (req, res, 
         }
 
         req.session.user = await User.findByIdAndUpdate(req.session.user._id, {profilePic: filePath},{ new: true});
+        res.sendStatus(200);
+    })
+});
+
+// プロフィール画像アップロード
+// upload.single("croppedImage")は、アップロードされたファイルを解析するためにmulterに使用されるミドルウェア関数
+// "croppedImage"は、アップロードされたファイルのフィールド名
+router.post("/coverPhoto", upload.single("croppedImage"), async (req, res, next) => {
+    // ファイルが空の場合
+    if(!req.file) {
+        console.log("ファイルをアップロードできませんでした")
+        return res.sendStatus(400);
+    }
+
+    // {アップロードされたファイルの元の名前}
+    let filePath = `/uploads/images/${req.file.filename}.png`;
+    // ファイルが一時的に保存されている場所
+    let tempPath = req.file.path;
+    // ファイルが保存される場所
+    let targetPath = path.join(__dirname, `../../${filePath}`);
+
+    // 一時ファイルを保存先に移動
+    fs.rename(tempPath, targetPath, async error => {
+        if(error != null) {
+            console.log(error);
+            return res.sendStatus(400);
+        }
+
+        req.session.user = await User.findByIdAndUpdate(req.session.user._id, {coverPhoto: filePath},{ new: true});
         res.sendStatus(200);
     })
 });

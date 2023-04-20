@@ -152,6 +152,25 @@ router.post("/:id/retweet", async (req, res, next) => {
 });
 
 // PUTメソッド
+router.put("/:id", async (req, res, next) => {
+    if(req.body.pinned !== undefined) {
+        // ユーザーによって投稿されたすべての投稿について、pinnedプロパティをfalseに設定
+        await Post.updateMany({ postedBy: req.session.user }, { pinned: false })
+        .catch(error => {
+            console.log(error);
+            res.sendStatus(400)
+        })
+    }
+    console.log(req.body);
+    Post.findByIdAndUpdate(req.params.id, req.body)
+    .then(() => res.sendStatus(204))
+    .catch(error => {
+        console.log(error);
+        res.sendStatus(400)
+    })
+});
+
+// PUTメソッド
 router.put("/:id/like", async (req, res, next) => {
     // :id部分がreq.params.idとして使用される
     let postId = req.params.id;
@@ -172,7 +191,6 @@ router.put("/:id/like", async (req, res, next) => {
         console.log(error);
         res.sendStatus(400);
     })
-
     res.status(200).send(post);
 });
 
