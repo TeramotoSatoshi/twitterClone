@@ -1,0 +1,19 @@
+//- レイアウト読み込み//
+extends layouts/main-layout.pug
+
+block content
+
+    .searchBarContainer
+        i.fas.fa-search
+        input#searchBox(type="text", name="searchBox", data-search=selectedTab, placeholder="ユーザーまたは投稿を検索")
+
+    .tabContainer
+        +createTab("Posts", `/search/posts`, selectedTab != "users")
+        +createTab("Users", `/search/users`, selectedTab == "users")
+
+    .resultContainer
+
+    +createPostModal(userLoggedIn)
+
+block scripts
+    script(src="/js/search.js")

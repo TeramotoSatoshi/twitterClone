@@ -12,6 +12,29 @@ const Post = require("../../schemas/PostSchema");
 // bodyParser設定、拡張Off（キーと値のみ取得する）
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// GETメソッド
+router.get("/", async (req, res, next) => {
+    let searchObj = req.query;
+
+    if(req.query.search !== undefined) {
+        searchObj =  {
+            $or: [
+                { firstName: { $regex: req.query.search, $options: "i" }},
+                { lastName: { $regex: req.query.search, $options: "i" }},
+                { username: { $regex: req.query.search, $options: "i" }},
+            ]
+
+        }
+    }
+
+    User.find(searchObj)
+    .then(results => res.status(200).send(results))
+    .catch(error => {
+        console.log(error);
+        res.sendStatus(400);
+    })
+});
+
 // PUTメソッド
 router.put("/:userId/follow", async (req, res, next) => {
     // :id部分がreq.params.idとして使用される
@@ -62,7 +85,7 @@ router.get("/:userId/following", async (req, res, next) => {
     User.findById(req.params.userId)
     .populate("following")
     .then(results => {
-        res.status(200).send(results)
+        res.status(200).send(results);
     })
     .catch(error => {
         console.log(error);

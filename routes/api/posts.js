@@ -18,6 +18,11 @@ router.get("/", async (req, res, next) => {
         delete searchObj.isReply;
     }
 
+    if(searchObj.search !== undefined) {
+        searchObj.content = { $regex: searchObj.search, $options: "i" };
+        delete searchObj.search;
+    }
+
     if(searchObj.followingOnly !== undefined) {
         // 引数判定
         let followingOnly = searchObj.followingOnly == "true";
