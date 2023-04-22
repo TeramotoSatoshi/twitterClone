@@ -23,10 +23,8 @@ router.get("/", async (req, res, next) => {
                 { lastName: { $regex: req.query.search, $options: "i" }},
                 { username: { $regex: req.query.search, $options: "i" }},
             ]
-
         }
     }
-
     User.find(searchObj)
     .then(results => res.status(200).send(results))
     .catch(error => {

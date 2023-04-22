@@ -1,0 +1,11 @@
+//- レイアウト読み込み//
+extends layouts/main-layout.pug
+
+block content
+    .chatPageContainer
+        .chatTitleBar
+            label(for="userSearchTextBox") To:
+            #selectUsers
+                input#userSearchTextBox(type="text", placeholder="人物の名前を入力してください")
+        .resultsContainer
+        button#createChatButton(disabled) チャットを作成する

@@ -13,7 +13,7 @@ block content
             +createTab("フォロー中", `/profile/${profileUser.username}/following`, selectedTab != "followers")
             +createTab("フォロワー", `/profile/${profileUser.username}/followers`, selectedTab == "followers")
 
-        .resultContainer
+        .resultsContainer
 
 block scripts
     script(src="/js/followersAndFollowing.js")

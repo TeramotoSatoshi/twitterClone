@@ -9,13 +9,13 @@ $(document).ready(() => {
 // フォロワー取得
 function loadFollowers(){
     $.get(`/api/users/${profileUserId}/followers`, results => {
-        outputUsers(results.followers, $(".resultContainer"));
+        outputUsers(results.followers, $(".resultsContainer"));
      });
 }
 
 // フォロー中取得
 function loadFollowing(){
     $.get(`/api/users/${profileUserId}/following`, results => {
-        outputUsers(results.following, $(".resultContainer"));
+        outputUsers(results.following, $(".resultsContainer"));
      });
 }

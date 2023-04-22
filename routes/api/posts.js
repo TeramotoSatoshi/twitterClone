@@ -166,7 +166,6 @@ router.put("/:id", async (req, res, next) => {
             res.sendStatus(400)
         })
     }
-    console.log(req.body);
     Post.findByIdAndUpdate(req.params.id, req.body)
     .then(() => res.sendStatus(204))
     .catch(error => {

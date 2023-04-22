@@ -1,5 +1,3 @@
-let timer;
-
 // searchBoxのキーが押された時のアクション
 $("#searchBox").keydown((event) => {
     // タイマーリセット
@@ -13,7 +11,7 @@ $("#searchBox").keydown((event) => {
         value = textBox.val().trim();
 
         if(value == "") {
-            $(".resultContainer").html("");
+            $(".resultsContainer").html("");
         } else {
             search(value, searchType);
         }
@@ -25,9 +23,9 @@ function search(searchTerm, searchType) {
 
     $.get(url, { search: searchTerm }, (results) => {
         if(searchType == "users") {
-            outputUsers(results, $(".resultContainer"));
+            outputUsers(results, $(".resultsContainer"));
         } else {
-            outputPosts(results, $(".resultContainer"));
+            outputPosts(results, $(".resultsContainer"));
         }
     })
 }

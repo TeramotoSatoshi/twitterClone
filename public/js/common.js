@@ -1,5 +1,7 @@
 // グローバル
 let cropper;
+let timer;
+let selectedUsers = [];
 
 // postTextareaにキーが押された時のアクションを割り当て
 $("#postTextarea, #replyTextarea").keyup((event) => {
@@ -12,13 +14,47 @@ $("#postTextarea, #replyTextarea").keyup((event) => {
 
     if (submitButton.length == 0) return alert("No submit button found");
 
-
     if ((value == "")) {
         // 取得値が空ならボタン非活性
         submitButton.prop("disabled", true);
         return;
     }
     submitButton.prop("disabled", false);
+});
+
+// userSearchTextBoxのキーが押された時のアクション
+$("#userSearchTextBox").keydown((event) => {
+    // タイマーリセット
+    clearTimeout(timer);
+
+    let textBox = $(event.target);
+    let value = textBox.val();
+
+    timer = setTimeout(() => {
+        value = textBox.val().trim();
+
+        // 空またはバックスペースの場合
+        if(value == "" && (event.which == 8 || event.keyCode == 8)) {
+            // 配列の最後の要素を削除
+            selectedUsers.pop();
+            // 検索結果再取得
+            updateSelectedUsersHtml();
+            // 検索結果削除
+            $(".resultsContainer").html("");
+
+            // 選択済みユーザがいない場合
+            if (selectedUsers.length == 0) {
+                $("#createChatButton").prop("disabled", true);
+            }
+            return;
+        }
+
+        if(value == "") {
+            $(".resultsContainer").html("");
+        } else {
+            searchUsers(value);
+        }
+    }, 1000)
 });
 
 // submitPostButtonクリックイベント
@@ -53,7 +89,7 @@ $("#submitPostButton, #submitReplyButton").click((event) => {
             $(".postsContainer").append(html);
             textBox.val("");
             button.prop("disabled", true);
-            location.reload();
+            location.reload(); // 場所違うかも？
         }
     });
 });
@@ -533,11 +569,11 @@ function outputPostsWithReplies(results, container) {
     });
 }
 
-
 // ユーザー出力
 function outputUsers(results, container) {
     container.html("");
     results.forEach(result => {
+        // HTML作成(フォローボタンなし)
         let html = createUserHtml(result, true);
         container.append(html);
     })
@@ -549,9 +585,7 @@ function outputUsers(results, container) {
 
 // ユーザHTML作成
 function createUserHtml(userData, showFollowButton) {
-
     let name = userData.firstName + " " + userData.lastName;
-
     // フォロー中のユーザに含まれている場合True
     let isFollowing = userLoggedIn.following && userLoggedIn.following.includes(userData._id);
     let text = isFollowing ? "フォロー中" : "フォローする";
@@ -575,5 +609,54 @@ function createUserHtml(userData, showFollowButton) {
                     </div>
                 </div>
                 ${followButton}
-            </div>`
+            </div>`;
+}
+
+// ユーザー検索
+function searchUsers(searchTerm) {
+    $.get("/api/users", { search: searchTerm }, results => {
+        outputSelectableUsers(results, $(".resultsContainer"));
+    })
+}
+
+// 検索ユーザー出力
+function outputSelectableUsers(results, container) {
+    container.html("");
+    results.forEach(result => {
+        // ログインユーザまたはすでに選択されているユーザの場合処理終了
+        if(result._id == userLoggedIn._id || selectedUsers.some(u => u._id == result._id)) {
+            return;
+        }
+        // HTML作成(フォローボタンなし)
+        let html = createUserHtml(result, false);
+        // DOMに挿入可能な形式に変換
+        let element = $(html);
+        element.click(() => userSelected(result));
+        container.append(element);
+    })
+
+    if(results.length == 0) {
+        container.append("<span class='noResults'>結果が見つかりませんでした</span>");
+    }
+}
+
+// 検索ユーザーが選択された時の処理
+function userSelected(user) {
+    selectedUsers.push(user);
+    updateSelectedUsersHtml();
+    $("#userSearchTextBox").val("").focus();
+    $(".resultsContainer").html("");
+    $("#createChatButton").prop("disabled", false);
+}
+
+function updateSelectedUsersHtml() {
+    let element = [];
+    selectedUsers.forEach(user => {
+        let name = user.firstName + " " + user.lastName;
+        let userElement = $(`<span class='selectedUser'>${name}</span>`)
+        element.push(userElement);
+    })
+
+    $(".selectedUser").remove();
+    $("#selectUsers").prepend(element);
 }
