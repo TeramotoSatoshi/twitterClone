@@ -41,6 +41,7 @@ const messageRoute = require("./routes/messageRoutes");
 // Api roots
 const postApiRoute = require("./routes/api/posts");
 const userApiRoute = require("./routes/api/users");
+const chatApiRoute = require("./routes/api/chats");
 
 // ミドルウェア関数を実行する
 app.use("/login", loginRoute);
@@ -54,6 +55,7 @@ app.use("/messages", middleWare.requireLogin, messageRoute);
 
 app.use("/api/posts", postApiRoute);
 app.use("/api/users", userApiRoute);
+app.use("/api/chats", chatApiRoute);
 
 // ルートパスのGETリクエストに対するレスポンスの設定
 app.get("/", middleWare.requireLogin, (req, res, next) => {

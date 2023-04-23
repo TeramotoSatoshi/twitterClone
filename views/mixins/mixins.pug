@@ -6,7 +6,7 @@ mixin createPostForm(userLoggedIn)
         .textareaContainer
             textarea#postTextarea(placeholder="what's happening?")
             .buttonsContainer
-                button#submitPostButton(disabled="") Post
+                button#submitPostButton(disabled="") 投稿
 
 //- モーダル作成関数
 mixin createReplyModal(userLoggedIn)
@@ -120,3 +120,26 @@ mixin createUnPinnedPostModal()
                 .modal-footer
                     button.btn.btn-secondary(type='button', data-bs-dismiss='modal') キャンセル
                     button#unPinPostButton.btn.btn-primary(type='button') ピンを解除
+
+mixin createChatImage(chatData, userLoggedIn)
+    if(!chatData)
+        return
+
+    - var i = 0
+    - var maxImagesToShow = 3
+    - var renamingUsers = chatData.users.length - maxImagesToShow
+    - renamingUsers--
+
+    .chatImageContainer
+        if renamingUsers > 0
+            .userCount
+                span +#{renamingUsers}
+
+        each user in chatData.users
+            if chatData.users.length != 1 && user._id == userLoggedIn
+                - continue
+            else if i >= maxImagesToShow
+                - break
+
+            img(src=user.profilePic, alt="プロフィール画像", title=user.firstName)
+            - i++

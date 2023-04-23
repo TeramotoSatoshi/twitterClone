@@ -3,7 +3,7 @@ extends layouts/login-layout.pug
 
 block content
     .loginContainer
-        h1 Register
+        h1 登録
         //- event.preventDefault：submitイベントの発生元であるフォームが持つデフォルトの動作をキャンセルする
         form#registerForm(method="post", onsubmit="event.preventDefault(); validateForm();")
 
@@ -17,7 +17,7 @@ block content
             input#passwordConf(type="password", name="passwordConf", placeholder="Confirm Password", required="")
             input(type="submit", value="Login")
 
-        a(href="/login") Already have an account? Login here
+        a(href="/login") すでにアカウントをお持ちですか？ここでログインします
 
         script.
             var passwordField = document.getElementById("password");

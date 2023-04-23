@@ -106,8 +106,10 @@ $("#replyModal").on("show.bs.modal", event => {
      });
 })
 
-// 返信モーダル閉じる
-$("#replyModal").on("hidden.bs.modal", () => $("#originalPostContainer").html(""))
+// 返信モーダル閉じるイベント
+$("#replyModal").on("hidden.bs.modal", () => {
+    $("#originalPostContainer").html("");
+})
 
 // 削除モーダル開くイベント
 $("#deletePostModal").on("show.bs.modal", event => {
@@ -284,6 +286,17 @@ $("#coverPhotoButton").click(() => {
             contentType: false, // jQueryが自動的にContent-Typeヘッダーを設定しない
             success: () => location.reload()
         })
+    })
+})
+
+// チャット作成ボタン押下イベント
+$("#createChatButton").click(() => {
+    let data = JSON.stringify(selectedUsers);
+    $.post("/api/chats", { users: data }, chat => {
+
+        if (!chat || !chat._id) return alert("サーバーから返信がありませんでした");
+
+        window.location.href = `/messages/${chat._id}`;
     })
 })
 
@@ -602,7 +615,7 @@ function createUserHtml(userData, showFollowButton) {
                 <div class='userImageContainer'>
                     <img src='${userData.profilePic}'>
                 </div>
-                <div class='userDetailContainer'>
+                <div class='userDetailsContainer'>
                     <div class='header'>
                         <a href='/profile/${userData.username}'>${name}</a>
                         <span class='username'>@${userData.username}</span>
@@ -649,6 +662,7 @@ function userSelected(user) {
     $("#createChatButton").prop("disabled", false);
 }
 
+// 選択済みユーザを検索ボックスに表示
 function updateSelectedUsersHtml() {
     let element = [];
     selectedUsers.forEach(user => {
@@ -656,7 +670,6 @@ function updateSelectedUsersHtml() {
         let userElement = $(`<span class='selectedUser'>${name}</span>`)
         element.push(userElement);
     })
-
     $(".selectedUser").remove();
     $("#selectUsers").prepend(element);
 }

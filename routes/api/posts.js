@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const User = require("../../schemas/UserSchema");
 const Post = require("../../schemas/PostSchema");
 
-// bodyParser設定、拡張Off（キーと値のみ取得する）
+// POSTパラメータをJSONで取得するにはbody-parserを使う
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // GETメソッド
@@ -221,5 +221,4 @@ async function getPosts(filter) {
     return await User.populate(results, {path: "retweetData.postedBy"});
 }
 
-// routerをどこでも使えるようにする
 module.exports = router;

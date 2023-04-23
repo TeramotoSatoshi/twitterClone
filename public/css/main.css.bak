@@ -1,15 +1,15 @@
 :root {
-    --blue: #1FA2F1;
-    --blueLight: #9BD1F9;
-    --blueBackground: rgba(212, 237, 255, 0.6);
+    --blue: #1fa2f1;
+    --blueLight: #9bd1f9;
+    --blueBackground: rgba(212,237,255,0.6);
     --buttonHoverBg: #d4edff;
-    --lightGrey: rgb(230, 236, 240);
+    --lightGray: rgb(230, 236, 240);
     --spacing: 15px;
-    --greyText: rgb(101, 119, 134);
-    --greyButtonText: rgb(0, 0, 0, 0.34);
+    --grayText: rgb(101, 119, 134);
+    --grayButtonText: rgb(0, 0, 0, 0.34);
     --red: rgb(226,34,94);
-    --redBackground: rgba(226,34,94,0.1);
     --green: rgb(23,191,99);
+    --redBackground: rgba(226,34,94,0.1);
     --greenBackground: rgba(23,191,99,0.1);
 }
 
@@ -63,7 +63,6 @@ nav a.blue {
 
 nav a:hover {
     background-color: var(--buttonHoverBg);
-    color: var(--blue);
     border-radius: 50%;
 }
 
@@ -81,7 +80,7 @@ nav a:hover {
 button {
     background-color: transparent;
     border: none;
-    color: var(--greyButtonText);
+    color: var(--grayButtonText);
 }
 
 button i,
@@ -91,8 +90,8 @@ button span {
 
 .mainSectionContainer {
     padding: 0;
-    border-left: 1px solid var(--lightGrey);
-    border-right: 1px solid var(--lightGrey);
+    border-left: 1px solid var(--lightGray);
+    border-right: 1px solid var(--lightGray);
     display: flex;
     flex-direction: column;
 }
@@ -102,7 +101,7 @@ button span {
     padding: 0 var(--spacing);
     display: flex;
     align-items: center;
-    border-bottom: 1px solid var(--lightGrey);
+    border-bottom: 1px solid var(--lightGray);
     flex-shrink: 0;
 }
 
@@ -167,13 +166,12 @@ button span {
     flex-direction: column;
     padding: var(--spacing);
     cursor: pointer;
-    border-bottom: 1px solid var(--lightGrey);
+    border-bottom: 1px solid var(--lightGray);
     flex-shrink: 0;
 }
 
 .mainContentContainer {
     flex: 1;
-    display: flex;
 }
 
 .postContentContainer {
@@ -185,7 +183,7 @@ button span {
 
 .username,
 .date {
-    color: var(--greyText);
+    color: var(--grayText);
 }
 
 .displayName {
@@ -195,6 +193,7 @@ button span {
 .postFooter {
     display: flex;
     align-items: center;
+    flex-direction: row;
 }
 
 .postFooter .postButtonContainer {
@@ -242,7 +241,7 @@ button span {
 .postActionContainer {
     padding-left: 35px;
     font-size: 13px;
-    color: var(--greyText);
+    color: var(--grayText);
     margin-bottom: 5px;
 }
 
@@ -271,7 +270,7 @@ button span {
     padding: var(--spacing);
 }
 
-.coverPhotoSection {
+.profileHeaderContainer .coverPhotoSection {
     height: 180px;
     background-color: var(--blue);
     position: relative;
@@ -332,7 +331,7 @@ button span {
 }
 
 .followersContainer span:not(.value) {
-    color: var(--greyText);
+    color: var(--grayText);
 }
 
 .followersContainer a {
@@ -345,7 +344,7 @@ button span {
 
 .tabContainer {
     display: flex;
-    border-bottom: 1px solid var(--lightGrey);
+    border-bottom: 1px solid var(--lightGray);
     flex-shrink: 0;
 }
 
@@ -355,7 +354,7 @@ button span {
     display: flex;
     justify-content: center;
     align-items: center;
-    color: var(--greyText);
+    color: var(--grayText);
     font-weight: bold;
 }
 
@@ -381,7 +380,7 @@ button span {
 .resultsContainer .user {
     padding: var(--spacing);
     display: flex;
-    border-bottom: 1px solid var(--lightGrey);
+    border-bottom: 1px solid var(--lightGray);
 }
 
 .user .userDetailsContainer {
@@ -428,7 +427,7 @@ button span {
 
 .pinnedPostText {
     font-size: 12px;
-    color: var(--greyText);
+    color: var(--grayText);
 }
 
 .pinnedPostContainer {
@@ -437,7 +436,7 @@ button span {
 
 .searchBarContainer {
     position: relative;
-    color: var(--greyText);
+    color: var(--grayText);
     padding: 10px var(--spacing);
 }
 
@@ -452,9 +451,9 @@ button span {
     width: 100%;
     padding: 5px 15px 5px 35px;
     border-radius: 50px;
-    background-color: var(--lightGrey);
+    background-color: var(--lightGray);
     border: none;
-    color: var(--greyText);
+    color: var(--grayText);
 }
 
 .chatPageContainer {
@@ -465,7 +464,7 @@ button span {
 }
 
 .chatTitleBar {
-    border-bottom: 1px solid var(--lightGrey);
+    border-bottom: 1px solid var(--lightGray);
     display: flex;
     align-items: center;
     min-height: 60px;
@@ -493,8 +492,8 @@ button span {
 }
 
 #createChatButton:disabled {
-    background-color: var(--lightGrey);
-    color: var(--greyText);
+    background-color: var(--lightGray);
+    color: var(--grayText);
 }
 
 .selectedUser {
@@ -512,7 +511,7 @@ button span {
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    border-bottom: 1px solid var(--lightGrey);
+    border-bottom: 1px solid var(--lightGray);
 }
 
 .resultListItem:hover {
@@ -530,7 +529,7 @@ button span {
 }
 
 .resultDetailContainer .subText {
-    color: var(--greyText);
+    color: var(--grayText);
     font-size: 14px;
 }
 
@@ -571,7 +570,7 @@ button span {
 }
 
 .chatTitleBarContainer {
-    border-bottom: 1px solid var(--lightGrey);
+    border-bottom: 1px solid var(--lightGray);
     display: flex;
     align-items: center;
     padding: var(--spacing);
@@ -584,11 +583,11 @@ button span {
 }
 
 #chatName:hover {
-    border: 1px solid var(--lightGrey);
+    border: 1px solid var(--grayButtonText);
     cursor: text;
 }
 
-.chatContainer {
+.chatContaienr {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -623,35 +622,4 @@ button span {
     flex-direction: column;
     overflow-y: auto;
     padding: var(--spacing)
-}
-
-.chatImageContainer {
-    display: flex;
-    flex-direction: row-reverse;
-    height: 100%;
-    margin-right: 10px;
-}
-
-.chatImageContainer img {
-    width: 40px;
-    height: 40px;
-    border: 2px solid #fff;
-    border-radius: 50%;
-}
-
-.chatImageContainer .userCount {
-    height: 40px;
-    width: 40px;
-    background-color: #f1f1f1;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    border: 2px solid #fff;
-}
-
-.chatImageContainer img:not(:last-child),
-.chatImageContainer .userCount{
-    margin-left: -10px;
 }

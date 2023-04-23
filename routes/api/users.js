@@ -9,7 +9,7 @@ const upload = multer( { dest: "uploads/"})
 const User = require("../../schemas/UserSchema");
 const Post = require("../../schemas/PostSchema");
 
-// bodyParser設定、拡張Off（キーと値のみ取得する）
+// POSTパラメータをJSONで取得するにはbody-parserを使う
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // GETメソッド
@@ -149,5 +149,4 @@ router.post("/coverPhoto", upload.single("croppedImage"), async (req, res, next)
     })
 });
 
-// routerをどこでも使えるようにする
 module.exports = router;
