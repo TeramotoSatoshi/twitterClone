@@ -8,6 +8,7 @@ const mongoose = require("./database");
 const session = require("express-session");
 
 const server = app.listen(port, () => console.log("Server listening on port " + port));
+const io = require("socket.io")(server, { pingTimeout: 60000 });
 
 // pugをview engineに設定
 app.set("view engine", "pug");
@@ -38,10 +39,11 @@ const uploadRoute = require("./routes/uploadRoutes");
 const searchRoute = require("./routes/searchRoutes");
 const messageRoute = require("./routes/messageRoutes");
 
-// Api roots
+// Api ルート
 const postApiRoute = require("./routes/api/posts");
 const userApiRoute = require("./routes/api/users");
 const chatApiRoute = require("./routes/api/chats");
+const messageApiRoute = require("./routes/api/messages");
 
 // ミドルウェア関数を実行する
 app.use("/login", loginRoute);
@@ -56,6 +58,7 @@ app.use("/messages", middleWare.requireLogin, messageRoute);
 app.use("/api/posts", postApiRoute);
 app.use("/api/users", userApiRoute);
 app.use("/api/chats", chatApiRoute);
+app.use("/api/messages", messageApiRoute);
 
 // ルートパスのGETリクエストに対するレスポンスの設定
 app.get("/", middleWare.requireLogin, (req, res, next) => {
@@ -68,3 +71,7 @@ app.get("/", middleWare.requireLogin, (req, res, next) => {
     // render()の第一引数は.ファイル名記述、渡したいデータ（DBから取得も可）→これをpugで読み込ませて表示
     res.status(200).render("home", payLoad);
 });
+
+io.on("connection", (socket) => {
+    console.log("connected to socket io");
+})

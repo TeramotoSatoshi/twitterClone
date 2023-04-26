@@ -673,3 +673,21 @@ function updateSelectedUsersHtml() {
     $(".selectedUser").remove();
     $("#selectUsers").prepend(element);
 }
+
+
+// チャット名取得
+function getChatName(chatData) {
+    let chatName = chatData.chatName;
+    if (!chatName) {
+        let otherChatUsers = getOtherChatUsers(chatData.users);
+        let namesArray = otherChatUsers.map(user => user.firstName + " " + user.lastName);
+        chatName = namesArray.join(", ");
+    }
+    return chatName;
+}
+
+// 自分以外のユーザー取得
+function getOtherChatUsers(users) {
+    if (users.length == 1) return users;
+    return users.filter(user => user._id != userLoggedIn._id);
+}

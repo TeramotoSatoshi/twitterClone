@@ -8,7 +8,9 @@ $(document).ready(() => {
     })
 })
 
+// チャットリスト出力
 function outputChatList(chatList, container) {
+    // 繰り返しチャット表示用HTML生成
     chatList.forEach(chat => {
         let html = createChatHtml(chat);
         container.append(html);
@@ -21,9 +23,12 @@ function outputChatList(chatList, container) {
 
 // チャットデータHTML生成
 function createChatHtml(chatData) {
+    // チャット名取得
     let chatName = getChatName(chatData);
+    // チャット画像取得
     let image = getChatImageElements(chatData);
-    let latestMessage = "最新メッセージ";
+    // 最新メッセージ取得
+    let latestMessage = getLatestMessage(chatData.latestMessage);
     return `<a href='/messages/${chatData._id}' class='resultListItem'>
                 ${image}
                 <div class='resultDetailContainer ellipsis'>
@@ -33,21 +38,13 @@ function createChatHtml(chatData) {
             </a>`;
 }
 
-// チャット名取得
-function getChatName(chatData) {
-    let chatName = chatData.chatName;
-    if (!chatName) {
-        let otherChatUsers = getOtherChatUsers(chatData.users);
-        let namesArray = otherChatUsers.map(user => user.firstName + " " + user.lastName);
-        chatName = namesArray.join(", ");
+// 最新メッセージ取得
+function getLatestMessage(latestMessage) {
+    if (latestMessage != null) {
+        let sender = latestMessage.sender;
+        return `${sender.firstName} ${sender.lastName}: ${latestMessage.content}`;
     }
-    return chatName;
-}
-
-// 自分以外のユーザー取得
-function getOtherChatUsers(users) {
-    if (users.length == 1) return users;
-    return users.filter(user => user._id != userLoggedIn._id);
+    return "New Chat";
 }
 
 // チャットユーザー画像取得
@@ -60,7 +57,6 @@ function getChatImageElements(chatData) {
         groupChatClass = "groupChatImage";
         chatImage += getUserChatImageElement(otherChatUsers[1]);
     }
-
     return `<div class='resultsImageContainer ${groupChatClass}'>${chatImage}</div>`;
 }
 

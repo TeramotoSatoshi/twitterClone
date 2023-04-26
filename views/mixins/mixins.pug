@@ -121,6 +121,7 @@ mixin createUnPinnedPostModal()
                     button.btn.btn-secondary(type='button', data-bs-dismiss='modal') キャンセル
                     button#unPinPostButton.btn.btn-primary(type='button') ピンを解除
 
+//- チャット画像作成
 mixin createChatImage(chatData, userLoggedIn)
     if(!chatData)
         return
@@ -143,3 +144,17 @@ mixin createChatImage(chatData, userLoggedIn)
 
             img(src=user.profilePic, alt="プロフィール画像", title=user.firstName)
             - i++
+
+//- ピン外す
+mixin createChatNameModal(chat)
+    #chatNameModal.modal.fade(tabindex='-1', aria-labelledby='chatNameModalLabel', aria-hidden='true')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    h5#chatNameModalLabel.modal-title チャット名を変更
+                    button.btn-close(type='button', data-bs-dismiss='modal', aria-label='Close')
+                .modal-body
+                    input#chatNameTextBox(type="text", placeholder="Enter a name for this chat", value=chat.chatName)
+                .modal-footer
+                    button.btn.btn-secondary(type='button', data-bs-dismiss='modal') キャンセル
+                    button#chatNameButton.btn.btn-primary(type='button') 保存
