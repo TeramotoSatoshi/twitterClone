@@ -38,6 +38,7 @@ const profileRoute = require("./routes/profileRoutes");
 const uploadRoute = require("./routes/uploadRoutes");
 const searchRoute = require("./routes/searchRoutes");
 const messageRoute = require("./routes/messageRoutes");
+const notificationRoute = require("./routes/notificationRoutes");
 
 // Api ルート
 const postApiRoute = require("./routes/api/posts");
@@ -54,6 +55,7 @@ app.use("/profile",middleWare.requireLogin, profileRoute);
 app.use("/uploads", uploadRoute);
 app.use("/search", middleWare.requireLogin, searchRoute);
 app.use("/messages", middleWare.requireLogin, messageRoute);
+app.use("/notifications", middleWare.requireLogin, notificationRoute);
 
 app.use("/api/posts", postApiRoute);
 app.use("/api/users", userApiRoute);
@@ -72,6 +74,28 @@ app.get("/", middleWare.requireLogin, (req, res, next) => {
     res.status(200).render("home", payLoad);
 });
 
-io.on("connection", (socket) => {
-    console.log("connected to socket io");
+// 接続を受け取る
+io.on("connection", socket => {
+    // クライアントからsetupを受信したら実行
+    socket.on("setup", userData => {
+        // userData._idルームに参加
+        socket.join(userData._id)
+        // connectedをクライアントに送信
+        socket.emit("connected");
+    })
+
+    socket.on("join room", room => socket.join(room));
+    // ルーム内のすべてのクライアントに送信
+    socket.on("typing", room => socket.in(room).emit("typing"));
+    socket.on("stop typing", room => socket.in(room).emit("stop typing"));
+
+    // メッセージを通知する
+    socket.on("new message", newMessage => {
+        let chat = newMessage.chat;
+        if (!chat) return console.log("Chat.users not defined");
+        chat.users.forEach(user => {
+            if (user._id == newMessage.sender._id) return;
+            socket.in(user._id).emit("message received", newMessage);
+        })
+    });
 })

@@ -1,5 +1,13 @@
+let typing = false;
+let TypingTime;
+
 // チャットページ初期表示
 $(document).ready(() => {
+
+    socket.emit("join room", chatId);
+    socket.on("typing", () => $(".typingDots").show());
+    socket.on("stop typing", () => $(".typingDots").hide());
+
     $.get(`/api/chats/${chatId}`, data => $("#chatName").text(getChatName(data)));
     $.get(`/api/chats/${chatId}/messages`, data => {
         let messages = [];
@@ -43,18 +51,42 @@ $(".sendMessageButton").click(() => {
 
 // Enter押下
 $(".inputTextBox").keydown((event) => {
+    updateTyping();
     if (event.which === 13) {
         messageSubmitted();
         return false;
     }
 })
 
-// メッセージ決定
+// タイピング中のイベント
+function updateTyping() {
+    if (!connected) return;
+
+    if (!typing) {
+        typing = true;
+        socket.emit("typing", chatId);
+    }
+    lastTypingTime = new Date().getTime();
+    let timerLength = 3000;
+    // 3秒経過すると実行
+    setTimeout(() => {
+        let timeNow = new Date().getTime();
+        let timeDiff = timeNow - lastTypingTime;
+        if (timeDiff >= timerLength && typing) {
+            socket.emit("stop typing", chatId);
+            typing = false;
+        }
+    }, timerLength)
+}
+
+// メッセージ送信
 function messageSubmitted() {
     let content = $(".inputTextBox").val().trim();
     if (content != "") {
         sendMessage(content);
         $(".inputTextBox").val("");
+        socket.emit("stop typing", chatId);
+        typing = false;
     }
 }
 
@@ -72,6 +104,9 @@ function sendMessage(content) {
             return;
         }
         addChatMessageHtml(data);
+        if (connected) {
+            socket.emit("new message", data);
+        }
     })
 }
 
@@ -136,6 +171,7 @@ function createMessageHtml(message, nextMessage, lastSenderId) {
             </li>`;
 }
 
+// 下までスクロール
 function scrollToBottom(animated) {
     let container = $(".chatMessages");
     // コンテナ要素の高さを取得

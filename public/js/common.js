@@ -691,3 +691,12 @@ function getOtherChatUsers(users) {
     if (users.length == 1) return users;
     return users.filter(user => user._id != userLoggedIn._id);
 }
+
+// メッセージ受信
+function messageReceived(newMessage) {
+    if ($(".chatContainer").length == 0) {
+        // Show popup notification
+    } else {
+        addChatMessageHtml(newMessage);
+    }
+}
