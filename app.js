@@ -50,12 +50,12 @@ const messageApiRoute = require("./routes/api/messages");
 app.use("/login", loginRoute);
 app.use("/register", registerRoute);
 app.use("/logout", logoutRoute);
-app.use("/posts",middleWare.requireLogin, postRoute);
-app.use("/profile",middleWare.requireLogin, profileRoute);
+app.use("/posts", middleWare.requireLogin, postRoute);
+app.use("/profile", middleWare.requireLogin, profileRoute);
 app.use("/uploads", uploadRoute);
 app.use("/search", middleWare.requireLogin, searchRoute);
 app.use("/messages", middleWare.requireLogin, messageRoute);
-app.use("/notifications", middleWare.requireLogin, notificationRoute);
+app.use("/notifications", notificationRoute);
 
 app.use("/api/posts", postApiRoute);
 app.use("/api/users", userApiRoute);
@@ -75,27 +75,27 @@ app.get("/", middleWare.requireLogin, (req, res, next) => {
 });
 
 // 接続を受け取る
-io.on("connection", socket => {
+io.on("connection", (socket) => {
     // クライアントからsetupを受信したら実行
-    socket.on("setup", userData => {
+    socket.on("setup", (userData) => {
         // userData._idルームに参加
-        socket.join(userData._id)
+        socket.join(userData._id);
         // connectedをクライアントに送信
         socket.emit("connected");
-    })
+    });
 
-    socket.on("join room", room => socket.join(room));
+    socket.on("join room", (room) => socket.join(room));
     // ルーム内のすべてのクライアントに送信
-    socket.on("typing", room => socket.in(room).emit("typing"));
-    socket.on("stop typing", room => socket.in(room).emit("stop typing"));
+    socket.on("typing", (room) => socket.in(room).emit("typing"));
+    socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
 
     // メッセージを通知する
-    socket.on("new message", newMessage => {
+    socket.on("new message", (newMessage) => {
         let chat = newMessage.chat;
         if (!chat) return console.log("Chat.users not defined");
-        chat.users.forEach(user => {
+        chat.users.forEach((user) => {
             if (user._id == newMessage.sender._id) return;
             socket.in(user._id).emit("message received", newMessage);
-        })
+        });
     });
-})
+});
