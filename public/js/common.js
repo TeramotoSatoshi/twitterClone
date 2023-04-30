@@ -3,6 +3,12 @@ let cropper;
 let timer;
 let selectedUsers = [];
 
+// ページ読み込み
+$(document).ready(() => {
+    refreshMessagesBadge();
+    refreshNotificationsBadge();
+});
+
 // postTextareaにキーが押された時のアクションを割り当て
 $("#postTextarea, #replyTextarea").keyup((event) => {
     let textBox = $(event.target);
@@ -82,7 +88,7 @@ $("#submitPostButton, #submitReplyButton").click((event) => {
     // "/api/posts"に対してpostリクエストを送信
     $.post("/api/posts", data, (postData) => {
         if (postData.replyTo) {
-            // リロード
+            emitNotification(postData.replyTo.postedBy);
             location.reload();
         } else {
             let html = createPostHtml(postData);
@@ -311,6 +317,7 @@ $(document).on("click", ".likeButton", (event) => {
             button.find("span").text(postData.likes.length || "");
             if (postData.likes.includes(userLoggedIn._id)) {
                 button.addClass("active");
+                emitNotification(postData.postedBy);
             } else {
                 button.removeClass("active");
             }
@@ -332,6 +339,7 @@ $(document).on("click", ".retweetButton", (event) => {
             button.find("span").text(postData.retweetUsers.length || "");
             if (postData.retweetUsers.includes(userLoggedIn._id)) {
                 button.addClass("active");
+                emitNotification(postData.postedBy);
             } else {
                 button.removeClass("active");
             }
@@ -348,7 +356,7 @@ $(document).on("click", ".post", (event) => {
     }
 });
 
-// 投稿押下イベント
+// フォローボタン押下イベント
 $(document).on("click", ".followButton", (event) => {
     let button = $(event.target);
     let userId = button.data().user;
@@ -367,6 +375,7 @@ $(document).on("click", ".followButton", (event) => {
             if (data.following && data.following.includes(userId)) {
                 button.addClass("following");
                 button.text("フォロー中");
+                emitNotification(userId);
             } else {
                 button.removeClass("following");
                 button.text("フォローする");
@@ -697,11 +706,12 @@ function getOtherChatUsers(users) {
 
 // メッセージ受信
 function messageReceived(newMessage) {
-    if ($(".chatContainer").length == 0) {
-        // Show popup notification
+    if ($(`[data-room="${newMessage.chat._id}"]`).length == 0) {
+        showMessagePopup(newMessage);
     } else {
         addChatMessageHtml(newMessage);
     }
+    refreshMessagesBadge();
 }
 
 // 通知を開いたことをマークする
@@ -713,4 +723,158 @@ function markNotificationsAsOpened(notificationsId = null, callback = null) {
         type: "PUT",
         success: () => callback(),
     });
+}
+
+// メッセージバッヂリフレッシュ
+function refreshMessagesBadge() {
+    $.get("/api/chats", { unreadOnly: true }, (data) => {
+        let numResults = data.length;
+        if (numResults > 0) {
+            $("#messageBadge").text(numResults).addClass("active");
+        } else {
+            $("#messageBadge").text("").removeClass("active");
+        }
+    });
+}
+
+// 通知バッヂリフレッシュ
+function refreshNotificationsBadge() {
+    $.get("/api/notifications", { unreadOnly: true }, (data) => {
+        let numResults = data.length;
+        if (numResults > 0) {
+            $("#notificationBadge").text(numResults).addClass("active");
+        } else {
+            $("#notificationBadge").text("").removeClass("active");
+        }
+    });
+}
+
+// 通知HTML出力
+function outputNotificationsList(notifications, container) {
+    notifications.forEach((notification) => {
+        let html = createNotificationHtml(notification);
+        container.append(html);
+    });
+
+    if (notifications.length == 0) {
+        container.append("<span class='noResults'>結果が見つかりませんでした</span>");
+    }
+}
+
+// 通知HTML作成
+function createNotificationHtml(notification) {
+    let userFrom = notification.userFrom;
+    let text = getNotificationText(notification);
+    let href = getNotificationUrl(notification);
+    let className = notification.opened ? "" : "active";
+    return `<a href='${href}' class='resultListItem notification ${className}' data-id='${notification._id}'>
+                <div class='resultsImageContainer'>
+                    <img src='${userFrom.profilePic}'>
+                </div>
+                <div class='resultDetailContainer ellipsis'>
+                    <span class='ellipsis'>${text}</span>
+                </div>
+            </a>`;
+}
+
+// 通知のテキスト取得
+function getNotificationText(notification) {
+    let userFrom = notification.userFrom;
+    // 名前が定義されていない場合
+    if (!(userFrom.firstName || userFrom.lastName)) {
+        return alert("送信者の名前が定義されていません");
+    }
+    let userFromName = `${userFrom.firstName} ${userFrom.lastName}`;
+    let text;
+
+    if (notification.notificationType == "retweet") {
+        text = `${userFromName} があなたの投稿をリツイートしました`;
+    } else if (notification.notificationType == "like") {
+        text = `${userFromName} があなたの投稿をいいねしました`;
+    } else if (notification.notificationType == "reply") {
+        text = `${userFromName} があなたの投稿に返信しました`;
+    } else if (notification.notificationType == "follow") {
+        text = `${userFromName} があなたをフォローしました`;
+    }
+    return `<div class='ellipse'>${text}</div>`;
+}
+
+// 通知のリンク取得
+function getNotificationUrl(notification) {
+    let url = "#";
+    if (notification.notificationType == "retweet" || notification.notificationType == "like" || notification.notificationType == "reply") {
+        url = `/posts/${notification.entityId}`;
+    } else if (notification.notificationType == "follow") {
+        url = `/profile/${notification.entityId}`;
+    }
+    return url;
+}
+
+// チャットユーザーの画像取得(詳細)
+function getUserChatImageElement(user) {
+    if (!user || !user.profilePic) {
+        return alert("ユーザー画像取得失敗");
+    }
+
+    return `<img src='${user.profilePic}' alt='プロフィール画像'>`;
+}
+
+// 通知ポップアップ表示
+function showNotificationPopup(data) {
+    // 通知用HTML作成
+    let html = createNotificationHtml(data);
+    let element = $(html);
+    // スライドで表示
+    element.hide().prependTo("#notificationList").slideDown("fast");
+    // ５秒でフェードアウト
+    setTimeout(() => element.fadeOut(400), 5000);
+}
+
+// メッセージポップアップ表示
+function showMessagePopup(data) {
+    if (!data.chat.latestMessage._id) {
+        data.chat.latestMessage = data;
+    }
+    let html = createChatHtml(data.chat);
+    let element = $(html);
+    element.hide().prependTo("#notificationList").slideDown("fast");
+    setTimeout(() => element.fadeOut(400), 5000);
+}
+
+// チャットデータHTML生成
+function createChatHtml(chatData) {
+    let chatName = getChatName(chatData);
+    let image = getChatImageElements(chatData);
+    let latestMessage = getLatestMessage(chatData.latestMessage);
+
+    let activeClass = !chatData.latestMessage || chatData.latestMessage.readBy.includes(userLoggedIn._id) ? "" : "active";
+    return `<a href='/messages/${chatData._id}' class='resultListItem ${activeClass}'>
+                ${image}
+                <div class='resultDetailContainer ellipsis'>
+                    <span class='heading ellipsis'>${chatName}</span>
+                    <span class='subText ellipsis'>${latestMessage}</span>
+                </div>
+            </a>`;
+}
+
+// 最新メッセージ取得
+function getLatestMessage(latestMessage) {
+    if (latestMessage != null) {
+        let sender = latestMessage.sender;
+        return `${sender.firstName} ${sender.lastName}: ${latestMessage.content}`;
+    }
+    return "New Chat";
+}
+
+// チャットユーザー画像取得
+function getChatImageElements(chatData) {
+    let otherChatUsers = getOtherChatUsers(chatData.users);
+    let groupChatClass = "";
+    let chatImage = getUserChatImageElement(otherChatUsers[0]);
+
+    if (otherChatUsers.length > 1) {
+        groupChatClass = "groupChatImage";
+        chatImage += getUserChatImageElement(otherChatUsers[1]);
+    }
+    return `<div class='resultsImageContainer ${groupChatClass}'>${chatImage}</div>`;
 }

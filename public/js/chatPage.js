@@ -3,28 +3,28 @@ let TypingTime;
 
 // チャットページ初期表示
 $(document).ready(() => {
-
     socket.emit("join room", chatId);
     socket.on("typing", () => $(".typingDots").show());
     socket.on("stop typing", () => $(".typingDots").hide());
 
-    $.get(`/api/chats/${chatId}`, data => $("#chatName").text(getChatName(data)));
-    $.get(`/api/chats/${chatId}/messages`, data => {
+    $.get(`/api/chats/${chatId}`, (data) => $("#chatName").text(getChatName(data)));
+    $.get(`/api/chats/${chatId}/messages`, (data) => {
         let messages = [];
         let lastSenderId = "";
         data.forEach((message, index) => {
             let html = createMessageHtml(message, data[index + 1], lastSenderId);
             messages.push(html);
             lastSenderId = message.sender._id;
-        })
+        });
         let messagesHtml = messages.join("");
         addMessagesHtmlToPage(messagesHtml);
         scrollToBottom(false);
+        markAllMessagesAsRead();
 
         $(".loadingSpinnerContainer").remove();
         $(".chatContainer").css("visibility", "visible");
-    })
-})
+    });
+});
 
 // チャット名保存ボタン押下
 $("#chatNameButton").click(() => {
@@ -35,19 +35,19 @@ $("#chatNameButton").click(() => {
         type: "PUT",
         data: { chatName: name },
         success: (data, status, xhr) => {
-            if(xhr.status != 204) {
+            if (xhr.status != 204) {
                 alert("更新できませんでした");
             } else {
                 location.reload();
             }
-        }
-    })
-})
+        },
+    });
+});
 
 // チャット送信ボタン押下
 $(".sendMessageButton").click(() => {
     messageSubmitted();
-})
+});
 
 // Enter押下
 $(".inputTextBox").keydown((event) => {
@@ -56,7 +56,7 @@ $(".inputTextBox").keydown((event) => {
         messageSubmitted();
         return false;
     }
-})
+});
 
 // タイピング中のイベント
 function updateTyping() {
@@ -76,7 +76,7 @@ function updateTyping() {
             socket.emit("stop typing", chatId);
             typing = false;
         }
-    }, timerLength)
+    }, timerLength);
 }
 
 // メッセージ送信
@@ -107,12 +107,12 @@ function sendMessage(content) {
         if (connected) {
             socket.emit("new message", data);
         }
-    })
+    });
 }
 
 // メッセージHTML追加
 function addChatMessageHtml(message) {
-    if(!message || !message._id) {
+    if (!message || !message._id) {
         alert("メッセージが無効です");
         return;
     }
@@ -137,7 +137,7 @@ function createMessageHtml(message, nextMessage, lastSenderId) {
     // 自分の投稿か
     let isMine = message.sender._id == userLoggedIn._id;
     // クラス名
-    let liClassName = isMine ? "mine": "theirs";
+    let liClassName = isMine ? "mine" : "theirs";
 
     let nameElement = "";
     if (isFirst) {
@@ -150,14 +150,14 @@ function createMessageHtml(message, nextMessage, lastSenderId) {
     let profileImage = "";
     if (isLast) {
         liClassName += " last";
-        profileImage = `<img src='${sender.profilePic}'>`
+        profileImage = `<img src='${sender.profilePic}'>`;
     }
 
     let imageContainer = "";
     if (!isMine) {
         imageContainer = `<div class='imageContainer'>
                                 ${profileImage}
-                            </div>`
+                            </div>`;
     }
 
     return `<li class='message ${liClassName}'>
@@ -180,9 +180,16 @@ function scrollToBottom(animated) {
     if (animated) {
         // アニメーション付きでスクロール
         container.animate({ scrollTop: scrollHeight }, "slow");
-    }
-    else {
+    } else {
         // 即座にスクロール
         container.scrollTop(scrollHeight);
     }
+}
+
+function markAllMessagesAsRead() {
+    $.ajax({
+        url: `/api/chats/${chatId}/messages/markAsRead`,
+        type: "PUT",
+        success: () => refreshMessagesBadge(),
+    });
 }

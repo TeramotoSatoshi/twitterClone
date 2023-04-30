@@ -13,8 +13,25 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // 通知取得
 router.get("/", (req, res, next) => {
+    let searchObj = { userTo: req.session.user._id, notificationType: { $ne: "NewMessage" } };
+    if (req.query.unreadOnly !== undefined && req.query.unreadOnly == "true") {
+        searchObj.opened = false;
+    }
     // NewMessageではない通知を取得
-    Notification.find({ userTo: req.session.user._id, notificationType: { $ne: "NewMessage" } })
+    Notification.find(searchObj)
+        .populate("userTo")
+        .populate("userFrom")
+        .sort({ createdAt: -1 })
+        .then((results) => res.status(200).send(results))
+        .catch((error) => {
+            console.log(error);
+            res.sendStatus(400);
+        });
+});
+
+// 最新通知取得
+router.get("/latest", (req, res, next) => {
+    Notification.findOne({ userTo: req.session.user._id })
         .populate("userTo")
         .populate("userFrom")
         .sort({ createdAt: -1 })

@@ -187,7 +187,7 @@ router.put("/:id/like", async (req, res, next) => {
 
     if (!isLiked) {
         // リツイート通知
-        console.log("Lke!");
+        console.log("Like!");
         await Notification.insertNotification(post.postedBy, userId, "like", post._id);
     }
 

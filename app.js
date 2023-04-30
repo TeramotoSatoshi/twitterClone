@@ -90,6 +90,7 @@ io.on("connection", (socket) => {
     // ルーム内のすべてのクライアントに送信
     socket.on("typing", (room) => socket.in(room).emit("typing"));
     socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
+    socket.on("notification received", (room) => socket.in(room).emit("notification received"));
 
     // メッセージを通知する
     socket.on("new message", (newMessage) => {
