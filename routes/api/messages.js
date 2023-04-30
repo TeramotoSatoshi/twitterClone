@@ -46,7 +46,7 @@ router.post("/", async (req, res, next) => {
 function insertNotification(chat, message) {
     chat.users.forEach((userId) => {
         if (userId == message.sender._id.toString()) return;
-        Notification.insertNotification(userId, message.sender._id, "New Message", message.chat._id);
+        Notification.insertNotification(userId, message.sender._id, "NewMessage", message.chat._id);
     });
 }
 

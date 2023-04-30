@@ -25,5 +25,6 @@ NotificationSchema.statics.insertNotification = async (userTo, userFrom, notific
     // 通知新規作成
     return Notification.create(data).catch((error) => console.log(error));
 };
+
 let Notification = mongoose.model("Notification", NotificationSchema);
 module.exports = Notification;

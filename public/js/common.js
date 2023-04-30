@@ -14,7 +14,7 @@ $("#postTextarea, #replyTextarea").keyup((event) => {
 
     if (submitButton.length == 0) return alert("No submit button found");
 
-    if ((value == "")) {
+    if (value == "") {
         // 取得値が空ならボタン非活性
         submitButton.prop("disabled", true);
         return;
@@ -34,7 +34,7 @@ $("#userSearchTextBox").keydown((event) => {
         value = textBox.val().trim();
 
         // 空またはバックスペースの場合
-        if(value == "" && (event.which == 8 || event.keyCode == 8)) {
+        if (value == "" && (event.which == 8 || event.keyCode == 8)) {
             // 配列の最後の要素を削除
             selectedUsers.pop();
             // 検索結果再取得
@@ -49,12 +49,12 @@ $("#userSearchTextBox").keydown((event) => {
             return;
         }
 
-        if(value == "") {
+        if (value == "") {
             $(".resultsContainer").html("");
         } else {
             searchUsers(value);
         }
-    }, 1000)
+    }, 1000);
 });
 
 // submitPostButtonクリックイベント
@@ -72,16 +72,16 @@ $("#submitPostButton, #submitReplyButton").click((event) => {
     };
 
     // モーダルなら
-    if(isModal) {
+    if (isModal) {
         // ボタンId取得
         let id = button.data().id;
-        if(id == null) return alert("ボタンIdがありません");
+        if (id == null) return alert("ボタンIdがありません");
         data.replyTo = id;
     }
 
     // "/api/posts"に対してpostリクエストを送信
     $.post("/api/posts", data, (postData) => {
-        if(postData.replyTo) {
+        if (postData.replyTo) {
             // リロード
             location.reload();
         } else {
@@ -95,45 +95,45 @@ $("#submitPostButton, #submitReplyButton").click((event) => {
 });
 
 // 返信モーダル開くイベント
-$("#replyModal").on("show.bs.modal", event => {
+$("#replyModal").on("show.bs.modal", (event) => {
     let button = $(event.relatedTarget);
     let postId = getPostIdFormElement(button);
     // ボタンにID設定
     $("#submitReplyButton").data("id", postId);
 
-    $.get("/api/posts/" + postId, results => {
+    $.get("/api/posts/" + postId, (results) => {
         outputPosts(results.postData, $("#originalPostContainer"));
-     });
-})
+    });
+});
 
 // 返信モーダル閉じるイベント
 $("#replyModal").on("hidden.bs.modal", () => {
     $("#originalPostContainer").html("");
-})
+});
 
 // 削除モーダル開くイベント
-$("#deletePostModal").on("show.bs.modal", event => {
+$("#deletePostModal").on("show.bs.modal", (event) => {
     let button = $(event.relatedTarget);
     let postId = getPostIdFormElement(button);
     // ボタンIDに投稿ID設定
     $("#deletePostButton").data("id", postId);
-})
+});
 
 // ピン止めモーダル開くイベント
-$("#confirmPinModal").on("show.bs.modal", event => {
+$("#confirmPinModal").on("show.bs.modal", (event) => {
     let button = $(event.relatedTarget);
     let postId = getPostIdFormElement(button);
     // ボタンIDに投稿ID設定
     $("#pinPostButton").data("id", postId);
-})
+});
 
 // ピン止めモーダル開くイベント
-$("#unPinModal").on("show.bs.modal", event => {
+$("#unPinModal").on("show.bs.modal", (event) => {
     let button = $(event.relatedTarget);
     let postId = getPostIdFormElement(button);
     // ボタンIDに投稿ID設定
     $("#unPinPostButton").data("id", postId);
-})
+});
 
 // 静的要素に紐づける
 // 投稿削除ボタン押下イベント
@@ -144,14 +144,14 @@ $("#deletePostButton").click((event) => {
         url: `/api/posts/${postId}`,
         type: "DELETE",
         success: (data, status, xhr) => {
-            if(xhr.status != 202) {
+            if (xhr.status != 202) {
                 alert("投稿を削除できませんでした");
                 return;
             }
             location.reload();
-        }
-    })
-})
+        },
+    });
+});
 
 // ピン保存ボタン押下イベント
 $("#pinPostButton").click((event) => {
@@ -162,14 +162,14 @@ $("#pinPostButton").click((event) => {
         type: "PUT",
         data: { pinned: true },
         success: (data, status, xhr) => {
-            if(xhr.status != 204) {
+            if (xhr.status != 204) {
                 alert("投稿をピン止めできませんでした");
                 return;
             }
             location.reload();
-        }
-    })
-})
+        },
+    });
+});
 
 // ピン解除ボタン押下イベント
 $("#unPinPostButton").click((event) => {
@@ -180,20 +180,19 @@ $("#unPinPostButton").click((event) => {
         type: "PUT",
         data: { pinned: false },
         success: (data, status, xhr) => {
-            if(xhr.status != 204) {
+            if (xhr.status != 204) {
                 alert("投稿をピン止めできませんでした");
                 return;
             }
             location.reload();
-        }
-    })
-})
+        },
+    });
+});
 
 // プロフィール画像が選択された時のイベント
-$("#filePhoto").change(function() {
-
+$("#filePhoto").change(function () {
     // input.filesが存在し、かつ少なくとも1つのファイルが選択されている場合
-    if(this.files && this.files[0]) {
+    if (this.files && this.files[0]) {
         let reader = new FileReader();
         // ファイル読み込み完了時
         reader.onload = (e) => {
@@ -201,22 +200,21 @@ $("#filePhoto").change(function() {
             image.src = e.target.result;
 
             // cropper変数を空にする
-            if(cropper !== undefined) cropper.destroy();
+            if (cropper !== undefined) cropper.destroy();
             cropper = new Cropper(image, {
                 aspectRatio: 1 / 1, // (正方形) アスペクト比
-                background: false // 背景が表示されず、クロッピング領域
+                background: false, // 背景が表示されず、クロッピング領域
             });
-        }
+        };
         // ファイルをデータURLとして読み込む
         reader.readAsDataURL(this.files[0]);
     }
-})
+});
 
 // 背景画像が選択された時のイベント
-$("#coverPhoto").change(function() {
-
+$("#coverPhoto").change(function () {
     // input.filesが存在し、かつ少なくとも1つのファイルが選択されている場合
-    if(this.files && this.files[0]) {
+    if (this.files && this.files[0]) {
         let reader = new FileReader();
         // ファイル読み込み完了時
         reader.onload = (e) => {
@@ -224,23 +222,23 @@ $("#coverPhoto").change(function() {
             image.src = e.target.result;
 
             // cropper変数を空にする
-            if(cropper !== undefined) cropper.destroy();
+            if (cropper !== undefined) cropper.destroy();
             cropper = new Cropper(image, {
                 aspectRatio: 3 / 1, // (正方形) アスペクト比
-                background: false // 背景が表示されず、クロッピング領域
+                background: false, // 背景が表示されず、クロッピング領域
             });
-        }
+        };
         // ファイルをデータURLとして読み込む
         reader.readAsDataURL(this.files[0]);
     }
-})
+});
 
 // プロフィール画像保存ボタン押下イベント
 $("#imageUploadButton").click(() => {
     // トリミング領域取得
     let canvas = cropper.getCroppedCanvas();
 
-    if(canvas == null) {
+    if (canvas == null) {
         alert("画像をアップロードできませんでした。再度試して下さい");
         return;
     }
@@ -257,17 +255,17 @@ $("#imageUploadButton").click(() => {
             data: formData,
             processData: false, // データを自動的に文字列に変換せずに送信
             contentType: false, // jQueryが自動的にContent-Typeヘッダーを設定しない
-            success: () => location.reload()
-        })
-    })
-})
+            success: () => location.reload(),
+        });
+    });
+});
 
 // 背景画像保存ボタン押下イベント
 $("#coverPhotoButton").click(() => {
     // トリミング領域取得
     let canvas = cropper.getCroppedCanvas();
 
-    if(canvas == null) {
+    if (canvas == null) {
         alert("画像をアップロードできませんでした。再度試して下さい");
         return;
     }
@@ -284,75 +282,74 @@ $("#coverPhotoButton").click(() => {
             data: formData,
             processData: false, // データを自動的に文字列に変換せずに送信
             contentType: false, // jQueryが自動的にContent-Typeヘッダーを設定しない
-            success: () => location.reload()
-        })
-    })
-})
+            success: () => location.reload(),
+        });
+    });
+});
 
 // チャット作成ボタン押下イベント
 $("#createChatButton").click(() => {
     let data = JSON.stringify(selectedUsers);
-    $.post("/api/chats", { users: data }, chat => {
-
+    $.post("/api/chats", { users: data }, (chat) => {
         if (!chat || !chat._id) return alert("サーバーから返信がありませんでした");
 
         window.location.href = `/messages/${chat._id}`;
-    })
-})
+    });
+});
 
 // 動的要素に紐づける
 // いいねボタン押下イベント
-$(document).on("click", ".likeButton", event => {
+$(document).on("click", ".likeButton", (event) => {
     let button = $(event.target);
     let postId = getPostIdFormElement(button);
-    if(postId === undefined) return;
+    if (postId === undefined) return;
     // いいね更新
     $.ajax({
         url: `/api/posts/${postId}/like`,
         type: "PUT",
         success: (postData) => {
             button.find("span").text(postData.likes.length || "");
-            if(postData.likes.includes(userLoggedIn._id)) {
+            if (postData.likes.includes(userLoggedIn._id)) {
                 button.addClass("active");
             } else {
                 button.removeClass("active");
             }
-        }
-    })
+        },
+    });
 });
 
 // リツイートボタン押下イベント
-$(document).on("click", ".retweetButton" ,(event) => {
+$(document).on("click", ".retweetButton", (event) => {
     let button = $(event.target);
     let postId = getPostIdFormElement(button);
 
-    if(postId === undefined) return;
+    if (postId === undefined) return;
 
     $.ajax({
         url: `/api/posts/${postId}/retweet`,
         type: "POST",
         success: (postData) => {
             button.find("span").text(postData.retweetUsers.length || "");
-            if(postData.retweetUsers.includes(userLoggedIn._id)) {
+            if (postData.retweetUsers.includes(userLoggedIn._id)) {
                 button.addClass("active");
             } else {
                 button.removeClass("active");
             }
-        }
-    })
+        },
+    });
 });
 
 // 投稿押下イベント
-$(document).on("click", ".post", event => {
+$(document).on("click", ".post", (event) => {
     let element = $(event.target);
     let postId = getPostIdFormElement(element);
-    if(postId !== undefined && !element.is("button")) {
+    if (postId !== undefined && !element.is("button")) {
         window.location.href = "/posts/" + postId;
     }
 });
 
 // 投稿押下イベント
-$(document).on("click", ".followButton", event => {
+$(document).on("click", ".followButton", (event) => {
     let button = $(event.target);
     let userId = button.data().user;
 
@@ -360,14 +357,14 @@ $(document).on("click", ".followButton", event => {
         url: `/api/users/${userId}/follow`,
         type: "PUT",
         success: (data, status, xhr) => {
-            if(xhr.status == 404) {
+            if (xhr.status == 404) {
                 alert("user not found");
                 return;
             }
             // フォロワーの差分定義
             let difference = 1;
             // 配列が存在し、Idを含んでいれば
-            if(data.following && data.following.includes(userId)) {
+            if (data.following && data.following.includes(userId)) {
                 button.addClass("following");
                 button.text("フォロー中");
             } else {
@@ -376,13 +373,25 @@ $(document).on("click", ".followButton", event => {
                 difference = -1;
             }
 
-            let followersLabel = $("#followersValue")
-            if(followersLabel.length != 0) {
+            let followersLabel = $("#followersValue");
+            if (followersLabel.length != 0) {
                 let followersText = parseInt(followersLabel.text());
                 followersLabel.text(followersText + difference);
             }
-        }
-    })
+        },
+    });
+});
+
+// 通知クリックイベント
+$(document).on("click", ".notification.active", (e) => {
+    let container = $(e.target).closest(".notification ");
+    let notificationId = container.data().id;
+    let href = container.attr("href");
+    // リンクを処理しない
+    e.preventDefault();
+    // マーキングが終了したときに起きるイベント
+    let callback = () => (window.location = href);
+    markNotificationsAsOpened(notificationId, callback);
 });
 
 // ID取得
@@ -392,15 +401,14 @@ function getPostIdFormElement(element) {
     // postクラスが存在する場合引数を返し、存在しない場合親にpostクラスを持つ要素を取得
     let rootElement = isRoot == true ? element : element.closest(".post"); // falseなら親要素取得（post）
     let postId = rootElement.data().id;
-    if(postId === undefined) return alert("alert");
+    if (postId === undefined) return alert("alert");
     return postId;
 }
 
 // 投稿作成イベント
 function createPostHtml(postData, largeFont = false) {
-
     // 投稿データがなければアラート
-    if(postData == null) return alert("投稿がありません");
+    if (postData == null) return alert("投稿がありません");
     // リツイートデータ判定
     let isRetweet = postData.retweetData !== undefined;
     // リツイートデータであれば投稿者を取得
@@ -411,7 +419,7 @@ function createPostHtml(postData, largeFont = false) {
     // 投稿者ID取得
     let posted = postData.postedBy;
     // 投稿者がいない場合
-    if(posted._id === undefined) return console.log("User Object not populated");
+    if (posted._id === undefined) return console.log("User Object not populated");
 
     // 表示用ユーザー名取得
     let displayName = posted.firstName + " " + posted.lastName;
@@ -422,24 +430,24 @@ function createPostHtml(postData, largeFont = false) {
     // 投稿にリツイートユーザがいればリツイートactiveにする
     let retweetButtonActiveClass = postData.retweetUsers.includes(userLoggedIn._id) ? "active" : "";
     // フォントサイズ大きく
-    let largeFontClass = largeFont? "largeFont" : "";
+    let largeFontClass = largeFont ? "largeFont" : "";
 
     let retweetText = "";
     // リツイートテキスト挿入
-    if(isRetweet) {
+    if (isRetweet) {
         retweetText = `<span>
                             <i class="fas fa-retweet"></i>
                             Retweeted by <a href='/profile/${retweetedBy}'>@${retweetedBy}</a>
-                       </span>`
+                       </span>`;
     }
 
     let replyFlag = "";
-    if(postData.replyTo && postData.replyTo._id) {
+    if (postData.replyTo && postData.replyTo._id) {
         // リプライがある場合
-        if(!postData.replyTo._id) {
+        if (!postData.replyTo._id) {
             // リプライ投稿のIDなければアラート
             return alert("Reply to is not populated");
-        } else if(!postData.replyTo.postedBy._id) {
+        } else if (!postData.replyTo.postedBy._id) {
             // リプライ投稿者のIDなければアラート
             return alert("Posted By is not populated");
         }
@@ -453,21 +461,20 @@ function createPostHtml(postData, largeFont = false) {
     let buttons = "";
     let pinnedPostText = "";
 
-    if(postData.postedBy._id == userLoggedIn._id) {
-        let pinnedClass =  "";
+    if (postData.postedBy._id == userLoggedIn._id) {
+        let pinnedClass = "";
         let dataTarget = "#confirmPinModal";
-        if(postData.pinned === true) {
+        if (postData.pinned === true) {
             pinnedClass = "active";
             dataTarget = "#unPinModal";
             pinnedPostText = "<i class='fas fa-thumbtack'></i> <span>Pinned post</span>";
         }
 
         buttons = `<button class="pinButton ${pinnedClass}" data-id="${postData._id}" data-toggle="modal" data-target="${dataTarget}"><i class='fas fa-thumbtack'></i></button>
-                    <button data-id="${postData._id}" data-toggle="modal" data-target="#deletePostModal"><i class='fas fa-times'></i></button>`
+                    <button data-id="${postData._id}" data-toggle="modal" data-target="#deletePostModal"><i class='fas fa-times'></i></button>`;
     }
 
-    return (
-        `<div class='post ${largeFontClass}' data-id='${postData._id}'>
+    return `<div class='post ${largeFontClass}' data-id='${postData._id}'>
             <div class="postActionContainer">
                 ${retweetText}
             </div>
@@ -508,13 +515,11 @@ function createPostHtml(postData, largeFont = false) {
                     </div>
                 </div>
             </div>
-        </div>`
-    );
+        </div>`;
 }
 
 // 日付変換
 function timeDifference(current, previous) {
-
     let msPerMinute = 60 * 1000;
     let msPerHour = msPerMinute * 60;
     let msPerDay = msPerHour * 24;
@@ -524,18 +529,18 @@ function timeDifference(current, previous) {
     let elapsed = current - previous;
 
     if (elapsed < msPerMinute) {
-        if(elapsed/1000 < 30) return "Just Now"
-        return Math.round(elapsed/1000) + ' seconds ago';
+        if (elapsed / 1000 < 30) return "Just Now";
+        return Math.round(elapsed / 1000) + " seconds ago";
     } else if (elapsed < msPerHour) {
-        return Math.round(elapsed/msPerMinute) + ' minutes ago';
-    } else if (elapsed < msPerDay ) {
-        return Math.round(elapsed/msPerHour ) + ' hours ago';
+        return Math.round(elapsed / msPerMinute) + " minutes ago";
+    } else if (elapsed < msPerDay) {
+        return Math.round(elapsed / msPerHour) + " hours ago";
     } else if (elapsed < msPerMonth) {
-        return Math.round(elapsed/msPerDay) + ' days ago';
+        return Math.round(elapsed / msPerDay) + " days ago";
     } else if (elapsed < msPerYear) {
-        return Math.round(elapsed/msPerMonth) + ' months ago';
+        return Math.round(elapsed / msPerMonth) + " months ago";
     } else {
-        return Math.round(elapsed/msPerYear ) + ' years ago';
+        return Math.round(elapsed / msPerYear) + " years ago";
     }
 }
 
@@ -544,22 +549,21 @@ function outputPosts(results, container) {
     container.html("");
 
     // 配列でなければそのまま代入
-    if(!Array.isArray(results)) {
+    if (!Array.isArray(results)) {
         results = [results];
     }
 
     // 繰り返し処理
-    results.forEach(result => {
+    results.forEach((result) => {
         let html = createPostHtml(result);
         container.append(html);
     });
 
     // 投稿がない場合
     if (results.length == 0) {
-        container.append("<span class='noResults'>投稿がありません</span>")
+        container.append("<span class='noResults'>投稿がありません</span>");
     }
 }
-
 
 // リプライ作成
 
@@ -567,7 +571,7 @@ function outputPosts(results, container) {
 function outputPostsWithReplies(results, container) {
     container.html("");
 
-    if(results.replyTo !== undefined && results.replyTo._id !== undefined) {
+    if (results.replyTo !== undefined && results.replyTo._id !== undefined) {
         let html = createPostHtml(results.replyTo);
         container.append(html);
     }
@@ -576,7 +580,7 @@ function outputPostsWithReplies(results, container) {
     container.append(mainPostHtml);
 
     // 繰り返し処理
-    results.replies.forEach(result => {
+    results.replies.forEach((result) => {
         let html = createPostHtml(result);
         container.append(html);
     });
@@ -585,13 +589,13 @@ function outputPostsWithReplies(results, container) {
 // ユーザー出力
 function outputUsers(results, container) {
     container.html("");
-    results.forEach(result => {
+    results.forEach((result) => {
         // HTML作成(フォローボタンなし)
         let html = createUserHtml(result, true);
         container.append(html);
-    })
+    });
 
-    if(results.length == 0) {
+    if (results.length == 0) {
         container.append("<span class='noResults'>結果が見つかりませんでした</span>");
     }
 }
@@ -605,7 +609,7 @@ function createUserHtml(userData, showFollowButton) {
     let buttonClass = isFollowing ? "followButton following" : "followButton";
 
     let followButton = "";
-    if(showFollowButton && userLoggedIn._id != userData._id) {
+    if (showFollowButton && userLoggedIn._id != userData._id) {
         followButton = `<div class='followButtonContainer'>
                             <button class='${buttonClass}' data-user=${userData._id}>${text}</button>
                         </div>`;
@@ -627,17 +631,17 @@ function createUserHtml(userData, showFollowButton) {
 
 // ユーザー検索
 function searchUsers(searchTerm) {
-    $.get("/api/users", { search: searchTerm }, results => {
+    $.get("/api/users", { search: searchTerm }, (results) => {
         outputSelectableUsers(results, $(".resultsContainer"));
-    })
+    });
 }
 
 // 検索ユーザー出力
 function outputSelectableUsers(results, container) {
     container.html("");
-    results.forEach(result => {
+    results.forEach((result) => {
         // ログインユーザまたはすでに選択されているユーザの場合処理終了
-        if(result._id == userLoggedIn._id || selectedUsers.some(u => u._id == result._id)) {
+        if (result._id == userLoggedIn._id || selectedUsers.some((u) => u._id == result._id)) {
             return;
         }
         // HTML作成(フォローボタンなし)
@@ -646,9 +650,9 @@ function outputSelectableUsers(results, container) {
         let element = $(html);
         element.click(() => userSelected(result));
         container.append(element);
-    })
+    });
 
-    if(results.length == 0) {
+    if (results.length == 0) {
         container.append("<span class='noResults'>結果が見つかりませんでした</span>");
     }
 }
@@ -665,22 +669,21 @@ function userSelected(user) {
 // 選択済みユーザを検索ボックスに表示
 function updateSelectedUsersHtml() {
     let element = [];
-    selectedUsers.forEach(user => {
+    selectedUsers.forEach((user) => {
         let name = user.firstName + " " + user.lastName;
-        let userElement = $(`<span class='selectedUser'>${name}</span>`)
+        let userElement = $(`<span class='selectedUser'>${name}</span>`);
         element.push(userElement);
-    })
+    });
     $(".selectedUser").remove();
     $("#selectUsers").prepend(element);
 }
-
 
 // チャット名取得
 function getChatName(chatData) {
     let chatName = chatData.chatName;
     if (!chatName) {
         let otherChatUsers = getOtherChatUsers(chatData.users);
-        let namesArray = otherChatUsers.map(user => user.firstName + " " + user.lastName);
+        let namesArray = otherChatUsers.map((user) => user.firstName + " " + user.lastName);
         chatName = namesArray.join(", ");
     }
     return chatName;
@@ -689,7 +692,7 @@ function getChatName(chatData) {
 // 自分以外のユーザー取得
 function getOtherChatUsers(users) {
     if (users.length == 1) return users;
-    return users.filter(user => user._id != userLoggedIn._id);
+    return users.filter((user) => user._id != userLoggedIn._id);
 }
 
 // メッセージ受信
@@ -699,4 +702,15 @@ function messageReceived(newMessage) {
     } else {
         addChatMessageHtml(newMessage);
     }
+}
+
+// 通知を開いたことをマークする
+function markNotificationsAsOpened(notificationsId = null, callback = null) {
+    if (callback == null) callback = () => location.reload();
+    let url = notificationsId != null ? `/api/notifications/${notificationsId}/markAsOpened` : `/api/notifications/markAsOpened`;
+    $.ajax({
+        url: url,
+        type: "PUT",
+        success: () => callback(),
+    });
 }
